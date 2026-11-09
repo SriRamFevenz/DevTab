@@ -262,7 +262,9 @@ function exportData() {
   const { groups, settings, notes, snippets, targets, ports } = state;
   const blob = new Blob([JSON.stringify({ app: "devtab", version: 1, data: { groups, settings, notes, snippets, targets, ports } }, null, 2)], { type: "application/json" });
   const a = h("a", { href: URL.createObjectURL(blob), download: `devtab-backup-${new Date().toISOString().slice(0, 10)}.json` });
+  document.body.append(a);
   a.click();
+  a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
@@ -290,6 +292,10 @@ async function resetAll() {
 }
 
 async function importTop() {
+  if (!chrome?.topSites?.get) {
+    toast("top sites not available in this browser");
+    return;
+  }
   const sites = await chrome.topSites.get();
   const have = new Set(allItems().map((x) => x.item.url.replace(/\/$/, "")));
   let added = 0;

@@ -53,10 +53,12 @@ test("jwt decode (jwt.io sample)", () => {
   assert.equal(j.payload.iat, 1516239022);
   assert.throws(() => C.jwtDecode("onlyonepart"), /parts/);
   assert.throws(() => C.jwtDecode("a.b.c"), /JSON/);
+  assert.throws(() => C.jwtDecode(""), /parts/);
 });
 
 test("timestamps", () => {
   assert.equal(C.describeTime("1700000000").iso, "2023-11-14T22:13:20.000Z");
+  assert.equal(C.describeTime(1700000000).iso, "2023-11-14T22:13:20.000Z");
   assert.equal(C.describeTime("1700000000000").iso, "2023-11-14T22:13:20.000Z"); // ms detected
   assert.equal(C.describeTime("2023-11-14T22:13:20Z").unix, 1700000000);
   assert.throws(() => C.describeTime("not a date"));
@@ -79,6 +81,7 @@ test("regex runner", () => {
   assert.ok(C.runRegex("(", "g", "x").error);
   assert.deepEqual(C.runRegex("", "g", "x").matches, []);
   assert.equal(C.runRegex("a*", "g", "aaa", 2).matches.length, 2); // cap respected, no infinite loop on empty matches
+  assert.equal(C.runRegex("x", undefined, "x").matches.length, 1);
 });
 
 test("random strings", () => {
@@ -93,6 +96,7 @@ test("fuzzy scoring", () => {
   assert.ok(C.fuzzyScore("git", "GitHub") > C.fuzzyScore("gb", "GitHub")); // substring beats scattered letters
   assert.equal(C.fuzzyScore("zzz", "GitHub"), -1);
   assert.ok(C.fuzzyScore("hack", "Hack The Box") > C.fuzzyScore("hack", "The Hacker News")); // earlier match wins
+  assert.ok(C.fuzzyScore(null, "GitHub") > 0);
 });
 
 test("normalizeUrl only lets http(s) through", () => {

@@ -45,16 +45,23 @@ export async function copyText(text, what = "copied") {
 export function favicon(url, name) {
   const letter = (name || "?").trim().charAt(0).toUpperCase() || "?";
   const wrap = h("span", { class: "fav", "aria-hidden": "true" });
-  const img = h("img", { alt: "", width: 16, height: 16 });
-  img.addEventListener("error", () => {
-    wrap.classList.add("fallback");
-    wrap.replaceChildren(letter);
-  });
-  const u = new URL(chrome.runtime.getURL("/_favicon/"));
-  u.searchParams.set("pageUrl", url);
-  u.searchParams.set("size", "32");
-  img.src = u.toString();
-  wrap.append(img);
+  try {
+    if (typeof chrome !== "undefined" && chrome?.runtime?.getURL) {
+      const img = h("img", { alt: "", width: 16, height: 16 });
+      img.addEventListener("error", () => {
+        wrap.classList.add("fallback");
+        wrap.replaceChildren(letter);
+      });
+      const u = new URL(chrome.runtime.getURL("/_favicon/"));
+      u.searchParams.set("pageUrl", url);
+      u.searchParams.set("size", "32");
+      img.src = u.toString();
+      wrap.append(img);
+      return wrap;
+    }
+  } catch {}
+  wrap.classList.add("fallback");
+  wrap.replaceChildren(letter);
   return wrap;
 }
 

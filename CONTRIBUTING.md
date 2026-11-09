@@ -7,7 +7,7 @@ workflow is deliberately simple.
 
 - Open an issue first for anything larger than a typo or a one-line fix, so we can
   agree on the approach before you spend time on it.
-- Check the [open issues](https://github.com/SriRamFevenz/DevTab/issues) and the
+- Check the [open issues](https://github.com/makitdev/DevTab/issues) and the
   roadmap before starting.
 - By contributing you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 

@@ -18,7 +18,7 @@ Closes #
 
 ## Checklist
 
-- [ ] I read [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md).
+- [ ] I read [CONTRIBUTING.md](https://github.com/makitdev/DevTab/blob/main/CONTRIBUTING.md).
 - [ ] The change is focused and does not include unrelated edits.
 - [ ] I updated `CHANGELOG.md` under **Unreleased** for user-visible changes.
 - [ ] No new runtime dependencies, network calls, or `innerHTML` with user data.

@@ -40,7 +40,7 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          cp manifest.json newtab.html dist/
+          cp manifest.json newtab.html LICENSE README.md dist/
           cp -R css js icons dist/
           (cd dist && zip -r "../devtab-$GITHUB_REF_NAME.zip" .)
 

@@ -28,5 +28,5 @@ All notable changes to DevTab are documented here. The format is based on
 - Six themes, JSON export/import, and Chrome top-sites import.
 - Local-only storage in `chrome.storage.local`; no network requests or analytics.
 
-[Unreleased]: https://github.com/SriRamFevenz/DevTab/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/SriRamFevenz/DevTab/releases/tag/v1.0.0
+[Unreleased]: https://github.com/makitdev/DevTab/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/makitdev/DevTab/releases/tag/v1.0.0

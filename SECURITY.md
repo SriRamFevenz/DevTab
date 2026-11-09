@@ -9,7 +9,7 @@ security reports seriously.
 
 Use GitHub's private vulnerability reporting:
 
-1. Go to the [Security tab](https://github.com/SriRamFevenz/DevTab/security).
+1. Go to the [Security tab](https://github.com/makitdev/DevTab/security).
 2. Click **Report a vulnerability**.
 3. Describe the issue with enough detail to reproduce it.
 

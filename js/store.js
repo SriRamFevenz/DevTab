@@ -129,8 +129,8 @@ export function sanitizeImport(raw) {
       };
     }),
     ports: arr(d.ports, 100).flatMap((x) => {
-      const port = num(x?.port, 0, 65535, 0);
-      return port ? [{ id: uid(), label: str(x?.label, 30), port }] : [];
+      const n = Math.round(+x?.port);
+      return n >= 1 && n <= 65535 ? [{ id: uid(), label: str(x?.label, 30), port: n }] : [];
     }),
   };
 }

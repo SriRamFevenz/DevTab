@@ -69,7 +69,7 @@ export function htmlDecode(s) {
 /* ---------- JWT (decode only, never verifies) ---------- */
 
 export function jwtDecode(token) {
-  const parts = token.trim().split(".");
+  const parts = String(token ?? "").trim().split(".");
   if (parts.length < 2 || parts.length > 3) throw new Error("a JWT has 2 or 3 dot-separated parts");
   const parse = (p, what) => {
     try {
@@ -129,7 +129,7 @@ export function md5(str) {
 /* ---------- time ---------- */
 
 export function describeTime(input) {
-  const s = input.trim();
+  const s = String(input ?? "").trim();
   if (!s) throw new Error("empty input");
   let d;
   if (/^-?\d+(\.\d+)?$/.test(s)) {
@@ -156,8 +156,9 @@ export const minifyJson = (s) => JSON.stringify(JSON.parse(s));
 export function runRegex(pattern, flags, text, cap = 500) {
   if (!pattern) return { matches: [], error: null };
   let re;
+  const f = String(flags ?? "");
   try {
-    re = new RegExp(pattern, flags.includes("g") ? flags : flags + "g");
+    re = new RegExp(pattern, f.includes("g") ? f : f + "g");
   } catch (e) {
     return { matches: [], error: e.message };
   }
@@ -186,8 +187,8 @@ export function randomString(len, charset) {
 
 // Returns a score > 0 for a match (higher is better), or -1 for no match.
 export function fuzzyScore(query, text) {
-  const q = query.toLowerCase();
-  const t = text.toLowerCase();
+  const q = String(query ?? "").toLowerCase();
+  const t = String(text ?? "").toLowerCase();
   if (!q) return 0.01;
   const at = t.indexOf(q);
   if (at >= 0) return 1000 - at * 5 - (t.length - q.length);
