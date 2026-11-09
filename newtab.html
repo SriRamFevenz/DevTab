@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-theme="github">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Tab</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="rain" hidden aria-hidden="true"></canvas>
+
+  <div class="shell">
+    <header class="top">
+      <form id="prompt" role="search" autocomplete="off">
+        <label id="ps1" for="cmd"></label>
+        <input id="cmd" type="text" spellcheck="false" autocomplete="off" autocapitalize="off"
+               placeholder="find a shortcut or run a command (try: help)">
+        <ul id="suggest" role="listbox" hidden></ul>
+      </form>
+      <div class="meta">
+        <span id="timer" hidden></span>
+        <time id="clock"></time>
+      </div>
+    </header>
+
+    <nav id="pinned" class="pinned" aria-label="Pinned links" hidden></nav>
+    <main id="groups"></main>
+
+    <footer class="bar">
+      <span class="hints">
+        <kbd>/</kbd> prompt <kbd>t</kbd> tools <kbd>1-9</kbd> pinned <kbd>?</kbd> help
+      </span>
+      <span class="grow"></span>
+      <button id="btnTools" type="button" class="btn">tools</button>
+      <button id="btnSettings" type="button" class="btn">settings</button>
+    </footer>
+  </div>
+
+  <div id="toasts" aria-live="polite"></div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
