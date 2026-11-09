@@ -1,7 +1,6 @@
 {
-  "name": "devtab",
+  "name": "@makitdev/devtab",
   "version": "1.0.0",
-  "private": true,
   "type": "module",
   "description": "Terminal-style new tab for developers and security learners (Chrome, Manifest V3).",
   "license": "Apache-2.0",
@@ -13,6 +12,18 @@
   "bugs": {
     "url": "https://github.com/makitdev/DevTab/issues"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "manifest.json",
+    "newtab.html",
+    "css",
+    "js",
+    "icons",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=18"
   },

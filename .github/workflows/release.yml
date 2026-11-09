@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release:
@@ -20,6 +21,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@makitdev"
 
       - name: Run unit tests
         run: npm test
@@ -51,3 +54,8 @@ jobs:
           gh release create "$GITHUB_REF_NAME" "devtab-$GITHUB_REF_NAME.zip" \
             --title "DevTab $GITHUB_REF_NAME" \
             --generate-notes
+
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish || echo "Package already published"
