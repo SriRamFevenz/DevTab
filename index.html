@@ -48,12 +48,17 @@ kbd{display:inline-block;min-width:1.7em;padding:0 5px;text-align:center;border:
 .skip{position:absolute;left:16px;top:-80px;z-index:100;background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:8px 12px;color:var(--text);text-decoration:none;}
 .skip:focus{top:16px;}
 .page{max-width:1120px;margin:0 auto;padding:0 32px;--rail:64px;--rail-gap:24px;}
-.site-head{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-top:26px;}
-.wordmark{color:var(--text);font-size:15px;font-weight:600;text-decoration:none;letter-spacing:.01em;}
+.site-head{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:24px;padding:14px 0;background:var(--bg);}
+.wordmark{grid-column:1;color:var(--text);font-size:15px;font-weight:600;text-decoration:none;letter-spacing:.01em;white-space:nowrap;}
 .wordmark:hover{text-decoration:underline;text-underline-offset:4px;}
-.site-nav{display:flex;gap:24px;font-size:13px;}
+.brand-logo{grid-column:2;justify-self:center;display:block;line-height:0;}
+.brand-logo img{width:28px;height:28px;border-radius:7px;}
+.site-nav{grid-column:3;justify-self:end;display:flex;align-items:center;gap:18px;font-size:13px;}
 .site-nav a{color:var(--muted);text-decoration:none;}
 .site-nav a:hover{color:var(--text);text-decoration:underline;text-underline-offset:4px;}
+.site-nav .github-star{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid var(--line);border-radius:4px;color:var(--text);}
+.github-star svg{width:14px;height:14px;fill:currentColor;}
+.star-count{padding-left:6px;border-left:1px solid var(--line);font-variant-numeric:tabular-nums;}
 .hero{padding:64px 0 96px;}
 .hero h1{margin:0 0 14px;font-size:clamp(1.75rem,4.4vw,3rem);line-height:1.12;letter-spacing:-.02em;}
 .lede{max-width:62ch;margin:0;color:var(--text);font-size:clamp(1rem,1.6vw,1.125rem);line-height:1.6;}
@@ -233,8 +238,8 @@ kbd{display:inline-block;min-width:1.7em;padding:0 5px;text-align:center;border:
 .tools-grid{grid-template-columns:1fr;}
 }
 @media (max-width:760px){.page{padding:0 18px;--rail:0px;--rail-gap:10px;}
-.site-head{padding-top:20px;}
-.site-nav{gap:18px;}
+.site-head{padding:10px 0;gap:16px;}
+.site-nav{gap:14px;}
 .hero{padding:40px 0 72px;}
 .hero-grid{grid-template-columns:1fr;gap:22px;margin-top:30px;}
 .margin-note{max-width:68ch;padding:12px 0 0;border-left:0;border-top:1px solid var(--line);}
@@ -265,6 +270,10 @@ kbd{display:inline-block;min-width:1.7em;padding:0 5px;text-align:center;border:
 input,textarea,select{font-size:16px !important;}
 }
 @media (max-width:520px){.ws-tabs{gap:0;padding:0 6px;}
+.site-head{grid-template-columns:1fr auto 1fr;gap:10px;}
+.wordmark{grid-column:1;grid-row:1;}
+.brand-logo{grid-column:2;grid-row:1;}
+.site-nav{grid-column:1 / -1;grid-row:2;justify-self:center;gap:10px;}
 .ws-tab{padding:10px 7px 9px;}
 .actions .btn{flex:1 1 100%;}
 .snippet{grid-template-columns:1fr;}
@@ -284,8 +293,14 @@ input,textarea,select{font-size:16px !important;}
 <div class="page">
 <header class="site-head">
   <a class="wordmark" href="#top">devtab</a>
+  <a class="brand-logo" href="#top" aria-label="DevTab home"><img src="icons/icon32.png" alt="" aria-hidden="true"></a>
   <nav class="site-nav" aria-label="Primary">
     <a href="https://github.com/makitdev/DevTab">GitHub</a>
+    <a class="github-star" href="https://github.com/makitdev/DevTab" aria-label="Star DevTab on GitHub">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .75a.75.75 0 0 1 .673.418l1.94 3.93 4.337.63a.75.75 0 0 1 .416 1.28l-3.138 3.058.741 4.319a.75.75 0 0 1-1.088.79L8 13.136l-3.881 2.04a.75.75 0 0 1-1.088-.79l.741-4.32L.634 7.01a.75.75 0 0 1 .416-1.28l4.337-.63 1.94-3.93A.75.75 0 0 1 8 .75Z"/></svg>
+      <span>Star</span>
+      <span class="star-count" id="star-count" aria-live="polite">…</span>
+    </a>
     <a href="#install">Install</a>
   </nav>
 </header>
@@ -693,6 +708,24 @@ test/           node:test suite</code></pre>
   var themeButtons = Array.prototype.slice.call(document.querySelectorAll(".theme-card"));
   var themeCurrent = document.getElementById("theme-current");
   var themeMeta = document.querySelector('meta[name="theme-color"]');
+  var starCount = document.getElementById("star-count");
+
+  fetch("https://api.github.com/repos/makitdev/DevTab")
+    .then(function (response) {
+      if (!response.ok) throw new Error("GitHub API returned " + response.status);
+      return response.json();
+    })
+    .then(function (repo) {
+      if (!Number.isSafeInteger(repo.stargazers_count) || repo.stargazers_count < 0) {
+        throw new Error("GitHub API returned an invalid star count");
+      }
+      starCount.textContent = repo.stargazers_count.toLocaleString();
+    })
+    .catch(function (error) {
+      starCount.textContent = "unavailable";
+      starCount.title = "Star count couldn't be loaded.";
+      console.error("Unable to load the DevTab GitHub star count.", error);
+    });
 
   function setTheme(name) {
     if (THEMES.indexOf(name) === -1) return false;
