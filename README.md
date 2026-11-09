@@ -4,6 +4,8 @@ A terminal-style new tab page for Chrome, built for developers and security lear
 No logo, no search box: a command prompt, unlimited grouped links, and a set of mini tools
 that run entirely in the page.
 
+**Website & Live Demo:** https://makitdev.github.io/DevTab/
+
 Vanilla JS (ES modules), Manifest V3, no build step, no dependencies, no network calls of its own.
 
 ## Install (unpacked)
@@ -36,7 +38,7 @@ Right-click a link to edit, pin, copy or delete it. Drag links to reorder them o
 | `theme <name>` | `github` `matrix` `dracula` `nord` `amber` `cyber` |
 | `tools` `notes` `snippets` `targets` `ports` `timer` | open a workspace tab |
 | `top` | import Chrome's most-visited sites |
-| `rain` `settings` `export` `help` | toggle rain, preferences, backup, help |
+| `rain` `settings` `export` `help` `docs` | toggle rain, preferences, backup, help, website |
 
 ### Workspace
 

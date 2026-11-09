@@ -78,6 +78,9 @@ if (manifest) {
   if (pkg && pkg.version && pkg.version !== manifest.version) {
     fail(`package.json version "${pkg.version}" does not match manifest version "${manifest.version}"`);
   }
+  if (pkg && pkg.homepage && manifest.homepage_url && manifest.homepage_url !== pkg.homepage) {
+    fail(`manifest homepage_url "${manifest.homepage_url}" does not match package.json homepage "${pkg.homepage}"`);
+  }
 }
 
 for (const warning of warnings) console.warn(`warning: ${warning}`);

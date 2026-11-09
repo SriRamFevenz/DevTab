@@ -8,6 +8,7 @@ All notable changes to DevTab are documented here. The format is based on
 
 ### Added
 
+- Project website and live demo links (`https://makitdev.github.io/DevTab/`) added to `manifest.json`, `README.md`, dialogs, prompt commands, and issue templates.
 - Community files: contributing guide, code of conduct, security policy, changelog,
   and issue/pull request templates.
 - GitHub Actions CI for tests and manifest validation, plus a tagged release

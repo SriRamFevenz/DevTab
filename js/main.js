@@ -340,7 +340,10 @@ function openSettings() {
     h("label", { class: "chk" }, check("rain", state.settings.rain), "background rain effect"),
     h("div", { class: "row" }, btn("export backup", exportData), btn("import backup", () => file.click()), btn("reset all", resetAll, "danger")),
     file,
-    h("div", { class: "row end" }, btn("close", () => dlg.close()))));
+    h("div", { class: "row" },
+      h("a", { class: "linkbtn", href: "https://makitdev.github.io/DevTab/", target: "_blank", rel: "noopener noreferrer", text: "website & docs" }),
+      h("span", { class: "grow" }),
+      btn("close", () => dlg.close()))));
   openDialog(dlg);
 }
 
@@ -354,9 +357,12 @@ function openHelp() {
       ["<text>", "fuzzy-find a shortcut"], ["g gh so yt mdn npm shodan edb <q>", "search that site"], ["cve 2024-3094", "open the NVD page"],
       ["add <url> [name]", "add to the “inbox” group"], ["rm <name>", "delete best match (undo available)"],
       ["theme <name>", THEMES.join(" · ")], ["tools notes snippets targets ports timer", "open a workspace tab"],
-      ["top", "import most-visited sites"], ["rain", "toggle background rain"], ["settings export help", ""],
+      ["top", "import most-visited sites"], ["rain", "toggle background rain"], ["settings export help docs", ""],
     ]),
-    h("div", { class: "row end" }, btn("close", () => dlg.close()))));
+    h("div", { class: "row" },
+      h("a", { class: "linkbtn", href: "https://makitdev.github.io/DevTab/", target: "_blank", rel: "noopener noreferrer", text: "website & docs" }),
+      h("span", { class: "grow" }),
+      btn("close", () => dlg.close()))));
   openDialog(dlg);
 }
 
@@ -379,6 +385,7 @@ const tab = (name) => ({ desc: `open ${name}`, run: () => openWorkspace(name) })
 const COMMANDS = {
   help: { desc: "keys and commands", run: openHelp },
   settings: { desc: "preferences and backup", run: openSettings },
+  docs: { desc: "open project website and docs", run: () => go("https://makitdev.github.io/DevTab/", true) },
   export: { desc: "download a backup", run: exportData },
   top: { desc: "import most-visited sites", run: importTop },
   rain: { desc: "toggle background rain", run: () => setSetting("rain", !state.settings.rain) },

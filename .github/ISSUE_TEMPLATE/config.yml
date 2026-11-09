@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Documentation & Live Demo
+    url: https://makitdev.github.io/DevTab/
+    about: Visit the official DevTab website and live demo.
   - name: Security vulnerability
     url: https://github.com/makitdev/DevTab/security/advisories/new
     about: Report security issues privately. Do not open a public issue.

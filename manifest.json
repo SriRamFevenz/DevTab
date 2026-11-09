@@ -4,6 +4,7 @@
   "short_name": "DevTab",
   "version": "1.0.0",
   "description": "A terminal-style new tab for developers and security learners: command prompt, unlimited grouped links, and local mini tools.",
+  "homepage_url": "https://makitdev.github.io/DevTab/",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },

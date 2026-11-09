@@ -29,6 +29,7 @@ export function defaultGroups() {
       L("Claude", "https://claude.ai", true), L("ChatGPT", "https://chatgpt.com"), L("Gemini", "https://gemini.google.com"),
     ] },
     { id: uid(), name: "dev", items: [
+      L("DevTab", "https://makitdev.github.io/DevTab/"),
       L("Stack Overflow", "https://stackoverflow.com"), L("MDN Web Docs", "https://developer.mozilla.org"),
       L("npm", "https://www.npmjs.com"), L("DevDocs", "https://devdocs.io"), L("Can I use", "https://caniuse.com"),
     ] },
