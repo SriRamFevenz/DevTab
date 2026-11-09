@@ -709,8 +709,15 @@ test/           node:test suite</code></pre>
   var themeCurrent = document.getElementById("theme-current");
   var themeMeta = document.querySelector('meta[name="theme-color"]');
   var starCount = document.getElementById("star-count");
+  var starLink = document.querySelector(".github-star");
+  var starCountRequest = null;
 
-  fetch("https://api.github.com/repos/makitdev/DevTab")
+  function updateStarCount() {
+    if (starCountRequest || document.visibilityState !== "visible") return;
+    starCountRequest = fetch("https://api.github.com/repos/makitdev/DevTab", {
+      cache: "no-store",
+      headers: { Accept: "application/vnd.github+json" }
+    })
     .then(function (response) {
       if (!response.ok) throw new Error("GitHub API returned " + response.status);
       return response.json();
@@ -719,13 +726,29 @@ test/           node:test suite</code></pre>
       if (!Number.isSafeInteger(repo.stargazers_count) || repo.stargazers_count < 0) {
         throw new Error("GitHub API returned an invalid star count");
       }
-      starCount.textContent = repo.stargazers_count.toLocaleString();
+      var formattedCount = repo.stargazers_count.toLocaleString();
+      starCount.textContent = formattedCount;
+      starCount.title = "";
+      starLink.setAttribute("aria-label", "Star DevTab on GitHub (" + formattedCount + " stars)");
     })
     .catch(function (error) {
-      starCount.textContent = "unavailable";
-      starCount.title = "Star count couldn't be loaded.";
+      if (starCount.textContent === "…") {
+        starCount.textContent = "unavailable";
+        starLink.setAttribute("aria-label", "Star DevTab on GitHub (count unavailable)");
+      }
+      starCount.title = "Star count couldn't be refreshed; it may be outdated.";
       console.error("Unable to load the DevTab GitHub star count.", error);
+    })
+    .then(function () {
+      starCountRequest = null;
     });
+  }
+
+  updateStarCount();
+  window.setInterval(updateStarCount, 5 * 60 * 1000);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") updateStarCount();
+  });
 
   function setTheme(name) {
     if (THEMES.indexOf(name) === -1) return false;
