@@ -1,330 +1,1041 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="github">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DevTab — a terminal-style new tab for developers</title>
-  <meta name="description" content="DevTab replaces your Chrome new tab with a command prompt, unlimited grouped links, and local mini tools for developers and security learners. Local-first, no accounts, no tracking.">
-  <meta name="theme-color" content="#0d1117">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="DevTab — a terminal-style new tab">
-  <meta property="og:description" content="A command prompt, unlimited grouped links, and mini tools that run entirely in your browser. Local-first, no accounts, no tracking.">
-  <meta property="og:image" content="icons/icon128.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon32.png">
-  <link rel="apple-touch-icon" href="icons/icon128.png">
-  <style>
-    :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --surface-2: #1c2330;
-      --line: #30363d;
-      --text: #c9d1d9;
-      --muted: #7d8590;
-      --accent: #3fb950;
-      --accent-2: #58a6ff;
-      --danger: #f85149;
-      --radius: 10px;
-      --mono: "JetBrains Mono", "Cascadia Code", "Fira Code", ui-monospace, Consolas, monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DevTab - a terminal-style new tab for Chrome</title>
+<meta name="description" content="DevTab is an open-source Chrome new-tab extension: a command prompt, unlimited grouped links, and offline developer tools. No network requests, no analytics.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d1117">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DevTab">
+<meta property="og:title" content="DevTab - a terminal-style new tab for Chrome">
+<meta property="og:description" content="A command prompt, unlimited grouped links, and offline developer tools. Open source, no dependencies, no network requests, no analytics.">
+<meta property="og:url" content="https://makitdev.github.io/DevTab/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230d1117'/%3E%3Cpath d='M4 4l6 4-6 4' stroke='%233fb950' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("devtab-theme");
+    if (["github", "matrix", "dracula", "nord", "amber", "cyber"].indexOf(t) !== -1) {
+      document.documentElement.setAttribute("data-theme", t);
     }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        radial-gradient(900px 500px at 80% -10%, rgba(63, 185, 80, .12), transparent 60%),
-        radial-gradient(700px 420px at 0% 10%, rgba(88, 166, 255, .10), transparent 60%),
-        var(--bg);
-      color: var(--text);
-      font: 16px/1.65 var(--sans);
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: var(--accent-2); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    img { max-width: 100%; display: block; }
-    :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; border-radius: 4px; }
-    ::selection { background: var(--accent); color: var(--bg); }
-
-    .skip {
-      position: absolute; left: -9999px; top: 0; z-index: 100;
-      background: var(--accent); color: var(--bg); padding: 10px 16px; border-radius: 0 0 8px 0; font-weight: 700;
-    }
-    .skip:focus { left: 0; }
-
-    .wrap { width: min(1120px, 100% - 40px); margin-inline: auto; }
-
-    .site-header {
-      display: flex; align-items: center; gap: 14px;
-      padding: 22px 0; border-bottom: 1px solid var(--line);
-    }
-    .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font: 700 18px/1 var(--mono); letter-spacing: -.02em; }
-    .brand:hover { text-decoration: none; }
-    .brand img { width: 32px; height: 32px; border-radius: 7px; }
-    .brand .dot { color: var(--accent); }
-    .site-nav { margin-left: auto; display: flex; align-items: center; gap: 22px; font-size: 14px; }
-    .site-nav a { color: var(--muted); }
-    .site-nav a:hover { color: var(--text); text-decoration: none; }
-
-    .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; padding: 76px 0 68px; }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px;
-      color: var(--accent); font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase;
-    }
-    .eyebrow::before { content: ""; width: 22px; height: 1px; background: var(--accent); }
-    h1 { margin: 0 0 20px; font-size: clamp(34px, 5vw, 54px); line-height: 1.08; letter-spacing: -.035em; font-weight: 800; }
-    h1 .accent { color: var(--accent); }
-    .lede { margin: 0 0 14px; max-width: 56ch; color: var(--muted); font-size: clamp(16px, 2vw, 19px); }
-    .lede strong { color: var(--text); font-weight: 600; }
-    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-      padding: 11px 18px; border: 1px solid var(--line); border-radius: 8px;
-      color: var(--text); background: var(--surface); font: 600 14px/1 var(--sans);
-      transition: border-color .15s, background .15s, transform .15s;
-    }
-    .btn:hover { border-color: var(--accent); background: var(--surface-2); text-decoration: none; transform: translateY(-1px); }
-    .btn.primary { background: var(--accent); border-color: var(--accent); color: #04150a; }
-    .btn.primary:hover { filter: brightness(1.08); }
-    .meta-line { margin: 16px 0 0; color: var(--muted); font: 13px/1.5 var(--mono); }
-    .meta-line .sep { padding: 0 8px; color: var(--line); }
-
-    .terminal {
-      border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
-      background: rgba(13, 17, 23, .82); box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
-    }
-    .terminal-bar { display: flex; align-items: center; gap: 8px; padding: 11px 14px; background: var(--surface); border-bottom: 1px solid var(--line); }
-    .terminal-bar .lights { display: flex; gap: 6px; }
-    .terminal-bar .lights span { width: 11px; height: 11px; border-radius: 50%; background: var(--line); }
-    .terminal-bar .lights span:nth-child(1) { background: #ff5f56; }
-    .terminal-bar .lights span:nth-child(2) { background: #ffbd2e; }
-    .terminal-bar .lights span:nth-child(3) { background: #27c93f; }
-    .terminal-title { margin-left: 6px; color: var(--muted); font: 12px/1 var(--mono); }
-    .terminal-body { padding: 20px 18px 24px; font: 13px/1.85 var(--mono); overflow-x: auto; }
-    .terminal-body p { margin: 0; white-space: nowrap; }
-    .terminal-body .prompt { color: var(--accent); }
-    .terminal-body .cmd { color: var(--text); }
-    .terminal-body .out { color: var(--muted); }
-    .terminal-body .out b { color: var(--accent-2); font-weight: 500; }
-    .terminal-body .out i { color: var(--accent); font-style: normal; }
-    .cursor { display: inline-block; width: 8px; height: 15px; margin-left: 3px; vertical-align: -2px; background: var(--accent); animation: blink 1.1s steps(1) infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
-
-    section { padding: 64px 0; border-top: 1px solid var(--line); }
-    .section-head { max-width: 640px; margin-bottom: 34px; }
-    .section-head h2 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 32px); letter-spacing: -.02em; }
-    .section-head p { margin: 0; color: var(--muted); }
-
-    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .card {
-      padding: 22px 20px; border: 1px solid var(--line); border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(22, 27, 34, .9), rgba(22, 27, 34, .55));
-      transition: border-color .15s, transform .15s;
-    }
-    .card:hover { border-color: var(--accent); transform: translateY(-2px); }
-    .card .glyph {
-      display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 34px;
-      margin-bottom: 14px; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px;
-      color: var(--accent); background: var(--bg); font: 600 13px/1 var(--mono);
-    }
-    .card h3 { margin: 0 0 8px; font-size: 16px; }
-    .card p { margin: 0; color: var(--muted); font-size: 14px; }
-
-    .install { display: grid; grid-template-columns: .9fr 1.1fr; gap: 48px; align-items: start; }
-    .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
-    .steps li { display: grid; grid-template-columns: 34px 1fr; gap: 14px; }
-    .steps .num {
-      display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
-      border: 1px solid var(--accent); color: var(--accent); font: 700 13px/1 var(--mono);
-    }
-    .steps h3 { margin: 2px 0 3px; font-size: 15px; }
-    .steps p { margin: 0; color: var(--muted); font-size: 14px; }
-    code {
-      padding: 2px 6px; border: 1px solid var(--line); border-radius: 5px;
-      background: var(--bg); color: var(--text); font: 12.5px/1.4 var(--mono);
-    }
-    .install-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
-    .callout { margin-top: 24px; padding: 14px 16px; border-left: 3px solid var(--accent-2); background: rgba(88, 166, 255, .07); border-radius: 0 8px 8px 0; color: var(--muted); font-size: 14px; }
-    .callout strong { color: var(--text); }
-
-    .site-footer { padding: 34px 0 44px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
-    .footer-top { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
-    .footer-top .brand { font-size: 15px; }
-    .footer-top .brand img { width: 24px; height: 24px; }
-    .footer-links { margin-left: auto; display: flex; flex-wrap: wrap; gap: 20px; }
-    .footer-links a { color: var(--muted); }
-    .footer-links a:hover { color: var(--text); }
-    .footer-bottom { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font: 12px/1.5 var(--mono); }
-
-    @media (max-width: 920px) {
-      .hero { grid-template-columns: 1fr; gap: 40px; padding: 56px 0 52px; }
-      .features { grid-template-columns: repeat(2, 1fr); }
-      .install { grid-template-columns: 1fr; gap: 32px; }
-    }
-    @media (max-width: 640px) {
-      .site-nav { gap: 16px; }
-      .site-nav .nav-text { display: none; }
-      .features { grid-template-columns: 1fr; }
-      .terminal-body { font-size: 12px; }
-      .footer-links { margin-left: 0; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      .cursor { animation: none; }
-      .btn:hover, .card:hover { transform: none; }
-    }
-  </style>
+  } catch (e) {}
+})();
+</script>
+<style>:root,[data-theme="github"]{--bg:#0d1117;--surface:#161b22;--line:#30363d;--text:#c9d1d9;--muted:#8b949e;--accent:#3fb950;--danger:#f85149;--warning:#d29922;--on-accent:#0d1117;}
+[data-theme="matrix"]{--bg:#030a05;--surface:#07130b;--line:#12361c;--text:#9cf5ae;--muted:#6fbf82;--accent:#00ff41;--danger:#ff5c5c;--warning:#ffd166;--on-accent:#030a05;}
+[data-theme="dracula"]{--bg:#282a36;--surface:#303341;--line:#44475a;--text:#f8f8f2;--muted:#b0b8dc;--accent:#50fa7b;--danger:#ff6e6e;--warning:#f1fa8c;--on-accent:#282a36;}
+[data-theme="nord"]{--bg:#2e3440;--surface:#3b4252;--line:#4c566a;--text:#e5e9f0;--muted:#aeb8cc;--accent:#88c0d0;--danger:#e6a48f;--warning:#ebcb8b;--on-accent:#2e3440;}
+[data-theme="amber"]{--bg:#100b02;--surface:#191105;--line:#3a2a0a;--text:#ffcf70;--muted:#c99a3e;--accent:#ffb000;--danger:#ff7a55;--warning:#ffd166;--on-accent:#100b02;}
+[data-theme="cyber"]{--bg:#05080f;--surface:#0a101c;--line:#1b2a44;--text:#d8f3ff;--muted:#8fb3c7;--accent:#00f0ff;--danger:#ff6b87;--warning:#ffd166;--on-accent:#05080f;}
+*,*::before,*::after{box-sizing:border-box;}
+html{color-scheme:dark;}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.65 "JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;-webkit-text-size-adjust:100%;}
+[hidden]{display:none !important;}
+::selection{background:var(--accent);color:var(--bg);}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;}
+a:hover{text-decoration-thickness:2px;}
+p{margin:0 0 16px;}
+p:last-child{margin-bottom:0;}
+h1,h2,h3{font-weight:600;}
+code,kbd,pre{font-family:inherit;}
+:not(pre) > code{background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:1px 5px;color:var(--text);font-size:.92em;}
+kbd{display:inline-block;min-width:1.7em;padding:0 5px;text-align:center;border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;color:var(--text);font-size:.82em;line-height:1.5;}
+.muted{color:var(--muted);}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+.skip{position:absolute;left:16px;top:-80px;z-index:100;background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:8px 12px;color:var(--text);text-decoration:none;}
+.skip:focus{top:16px;}
+.page{max-width:1120px;margin:0 auto;padding:0 32px;--rail:64px;--rail-gap:24px;}
+.site-head{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-top:26px;}
+.wordmark{color:var(--text);font-size:15px;font-weight:600;text-decoration:none;letter-spacing:.01em;}
+.wordmark:hover{text-decoration:underline;text-underline-offset:4px;}
+.site-nav{display:flex;gap:24px;font-size:13px;}
+.site-nav a{color:var(--muted);text-decoration:none;}
+.site-nav a:hover{color:var(--text);text-decoration:underline;text-underline-offset:4px;}
+.hero{padding:64px 0 96px;}
+.hero h1{margin:0 0 14px;font-size:clamp(1.75rem,4.4vw,3rem);line-height:1.12;letter-spacing:-.02em;}
+.lede{max-width:62ch;margin:0;color:var(--text);font-size:clamp(1rem,1.6vw,1.125rem);line-height:1.6;}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:36px;align-items:start;margin-top:38px;}
+.margin-note{max-width:30ch;margin:0;padding:2px 0 2px 16px;border-left:1px solid var(--line);color:var(--text);font-size:12px;line-height:1.7;}
+.margin-note .mark{color:var(--muted);}
+.noscript-note{margin:0 0 24px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:2px;color:var(--text);font-size:13px;}
+.terminal{min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+.term-bar{display:flex;justify-content:space-between;gap:16px;padding:7px 12px;background:var(--surface);border-bottom:1px solid var(--line);color:var(--muted);font-size:11px;}
+.term-output{height:196px;overflow-y:auto;padding:16px 16px 6px;font-size:13px;line-height:1.7;scrollbar-width:thin;scrollbar-color:var(--line) var(--bg);overscroll-behavior:contain;}
+.term-echo{margin:12px 0 2px;color:var(--muted);}
+.term-echo:first-child{margin-top:0;}
+.term-echo .ps1-small{color:var(--muted);}
+.term-echo .sym{color:var(--accent);font-weight:600;}
+.term-echo .cmd{color:var(--text);}
+.term-result{margin:0 0 6px;color:var(--text);font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;}
+.term-result.muted{color:var(--muted);}
+.term-result.err{color:var(--danger);}
+.term-form{display:flex;align-items:center;gap:10px;padding:13px 16px 15px;border-top:1px solid var(--line);background:var(--bg);font-size:clamp(1rem,2.2vw,1.5rem);}
+.term-form:focus-within{background:var(--surface);}
+.ps1{flex:none;color:var(--muted);font-size:.8em;white-space:nowrap;}
+.ps1 .sym{color:var(--accent);font-weight:600;}
+.input-wrap{position:relative;flex:1;min-width:0;}
+.term-form input{display:block;width:100%;min-width:0;margin:0;padding:0;background:transparent;border:0;border-radius:0;color:var(--text);font:inherit;line-height:1.4;caret-color:transparent;}
+.term-form input::placeholder{color:var(--muted);opacity:1;}
+.term-form input:focus-visible{outline:2px solid var(--accent);outline-offset:4px;}
+.measure{position:absolute;left:0;top:0;visibility:hidden;white-space:pre;font:inherit;pointer-events:none;}
+.caret{position:absolute;left:0;top:50%;width:2px;height:1.25em;margin-top:-.625em;background:var(--accent);pointer-events:none;animation:blink 1.05s step-end infinite;}
+@keyframes blink{0%,49%{opacity:1;}
+50%,100%{opacity:0;}
+}
+.term-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;padding:10px 16px 12px;border-top:1px solid var(--line);background:var(--surface);}
+.chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.try{color:var(--muted);font-size:11px;margin-right:2px;}
+.chip{background:transparent;border:1px solid var(--line);border-radius:3px;color:var(--text);padding:3px 8px;font:inherit;font-size:11px;cursor:pointer;transition:border-color .12s,background-color .12s;}
+.chip:hover{border-color:var(--accent);background:var(--bg);}
+.key-hint{margin:0;color:var(--muted);font-size:11px;}
+.key-hint kbd{font-size:10px;}
+.section,.interlude{margin-top:112px;}
+.sec-head{display:flex;align-items:baseline;gap:var(--rail-gap);border-top:1px solid var(--line);padding-top:14px;margin-bottom:28px;}
+.sec-num{flex:0 0 var(--rail);color:var(--muted);font-size:12px;}
+.sec-head h2{margin:0;font-size:clamp(1.5rem,2.8vw,2rem);line-height:1.2;letter-spacing:-.02em;}
+.sec-body{margin-left:calc(var(--rail) + var(--rail-gap));}
+.prose{max-width:68ch;margin:0 0 18px;color:var(--text);line-height:1.7;}
+.prose:last-child{margin-bottom:0;}
+.fineprint{max-width:78ch;margin:18px 0 0;color:var(--muted);font-size:12px;line-height:1.7;}
+.mini-head{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--text);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:transparent;border:1px solid var(--line);border-radius:3px;color:var(--text);padding:9px 15px;font:inherit;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;transition:border-color .12s,background-color .12s,color .12s;}
+.btn:hover{border-color:var(--accent);background:var(--surface);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.btn.primary:hover{background:var(--accent);filter:brightness(1.08);}
+.btn.small{padding:4px 10px;font-size:11px;font-weight:400;}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;}
+.man-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding-bottom:8px;color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase;}
+.man-table{width:100%;border-collapse:collapse;font-size:14px;}
+.man-table th{padding:9px 16px 9px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-align:left;}
+.man-table td{padding:12px 16px 12px 0;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.65;}
+.man-table tr:last-child td{border-bottom:0;}
+.man-table tbody tr:hover{background:var(--surface);}
+.man-table th:first-child,.man-table td:first-child{width:38%;}
+.man-table td:first-child code{white-space:normal;overflow-wrap:anywhere;}
+.man-table td:last-child{color:var(--text);max-width:68ch;}
+.cmd-foot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:48px;margin-top:36px;}
+.key-table{width:100%;border-collapse:collapse;font-size:13px;}
+.key-table td{padding:7px 12px 7px 0;border-bottom:1px solid var(--line);vertical-align:top;}
+.key-table tr:last-child td{border-bottom:0;}
+.key-table td:first-child{width:42%;white-space:nowrap;}
+.key-table td:last-child{color:var(--muted);}
+.links-note p{margin:0;color:var(--text);font-size:13px;line-height:1.7;}
+.ws{margin-top:24px;border:1px solid var(--line);border-radius:4px;background:var(--bg);overflow:hidden;}
+.ws-tabs{display:flex;gap:2px;overflow-x:auto;padding:0 10px;background:var(--surface);border-bottom:1px solid var(--line);scrollbar-width:thin;scrollbar-color:var(--line) var(--surface);}
+.ws-tab{flex:none;background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px 9px;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;}
+.ws-tab:hover{color:var(--text);}
+.ws-tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);}
+.ws-body{padding:18px;min-height:430px;}
+.tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;}
+.tool{min-width:0;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:3px;}
+.tool-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.tool-head h3{margin:0;font-size:13px;}
+.tool-note{color:var(--muted);font-size:11px;}
+.tool textarea,.tool input[type="text"]{width:100%;padding:8px 9px;background:var(--bg);border:1px solid var(--line);border-radius:2px;color:var(--text);font:inherit;font-size:12px;line-height:1.6;}
+.tool textarea{resize:vertical;min-height:132px;}
+.tool textarea:focus,.tool input:focus{border-color:var(--accent);}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label,.tool-label{color:var(--muted);font-size:11px;}
+.regex-fields{display:grid;grid-template-columns:minmax(0,1fr) 70px;gap:10px;margin-bottom:10px;}
+.tool-actions{display:flex;gap:6px;margin:10px 0;}
+.tool-out{min-height:64px;max-height:220px;overflow:auto;margin-top:10px;padding:9px 10px;background:var(--bg);border:1px solid var(--line);border-radius:2px;scrollbar-width:thin;scrollbar-color:var(--line) var(--bg);}
+.tool-out .tool-label{display:block;margin-bottom:4px;}
+.tool-out pre{margin:0;color:var(--text);font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;}
+.tool-out pre.err{color:var(--danger);}
+.tool-index{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.8;}
+.pad{display:flex;flex-direction:column;min-height:340px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:3px;}
+.pad pre{flex:1;margin:0;color:var(--text);font-size:13px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;}
+.pad-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;margin-top:16px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;}
+.snippet-list{border-top:1px solid var(--line);}
+.snippet{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);}
+.snippet-name{color:var(--muted);font-size:12px;}
+.snippet code{overflow-wrap:anywhere;}
+.snippet .copy{position:static;}
+.copy{position:absolute;top:7px;right:7px;padding:2px 7px;background:var(--bg);border:1px solid var(--line);border-radius:2px;color:var(--muted);font:inherit;font-size:10px;cursor:pointer;}
+.copy:hover{border-color:var(--accent);color:var(--text);}
+.target-table{width:100%;border-collapse:collapse;font-size:13px;}
+.target-table th{padding:0 12px 8px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-align:left;}
+.target-table td{padding:12px 12px 12px 0;border-bottom:1px solid var(--line);vertical-align:top;}
+.target-table tr:last-child td{border-bottom:0;}
+.status{display:inline-block;padding:1px 6px;border:1px solid currentColor;border-radius:2px;font-size:11px;line-height:1.5;}
+.status-todo{color:var(--muted);}
+.status-testing{color:var(--text);}
+.status-reported{color:var(--warning);}
+.status-done{color:var(--accent);}
+.target-note{margin:18px 0 0;padding:2px 0 2px 12px;border-left:2px solid var(--warning);color:var(--text);font-size:13px;}
+.port-list{border-top:1px solid var(--line);}
+.port-row{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.port-row:last-child{border-bottom:0;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
+.dot.up{background:var(--accent);}
+.dot.down{background:var(--danger);}
+.port-host{color:var(--muted);}
+.port-state{color:var(--text);font-size:12px;}
+.timer-panel{display:flex;flex-direction:column;justify-content:center;min-height:300px;padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:3px;}
+.timer-time{font-size:clamp(3rem,8vw,5rem);font-weight:600;line-height:1;letter-spacing:-.03em;}
+.timer-mode{margin-top:8px;color:var(--accent);font-size:12px;}
+.timer-sub{margin-top:6px;color:var(--muted);font-size:12px;}
+.timer-note{margin-top:24px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;}
+.privacy-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:56px;align-items:start;margin:26px 0 28px;}
+.perm-list{margin:0;border-top:1px solid var(--line);}
+.perm-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:18px;padding:12px 0;border-bottom:1px solid var(--line);}
+.perm-row dt{margin:0;}
+.perm-row dd{margin:0;color:var(--text);font-size:13px;line-height:1.65;}
+.fact-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line);}
+.fact-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.65;}
+.fact-label{color:var(--muted);}
+.fact-value{color:var(--text);font-weight:600;}
+.theme-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:24px;}
+.theme-card{display:flex;flex-direction:column;padding:0;overflow:hidden;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);text-align:left;font:inherit;cursor:pointer;transition:border-color .12s;}
+.theme-card:hover{border-color:var(--text);}
+.theme-card[aria-pressed="true"]{border-color:var(--accent);}
+.tc-bar{display:flex;justify-content:space-between;gap:6px;padding:7px 9px;background:var(--surface);border-bottom:1px solid var(--line);color:var(--muted);font-size:11px;}
+.tc-name{color:var(--text);font-weight:600;}
+.tc-active{display:none;color:var(--accent);}
+.theme-card[aria-pressed="true"] .tc-active{display:inline;}
+.tc-body{padding:10px 9px 12px;font-size:11px;line-height:1.7;}
+.tc-line{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tc-prompt{color:var(--accent);}
+.tc-muted{color:var(--muted);}
+.theme-status{margin:14px 0 0;color:var(--muted);font-size:12px;}
+.theme-status span{color:var(--text);}
+.install-lead{max-width:68ch;margin:0 0 28px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:2px;font-size:clamp(1.05rem,1.6vw,1.25rem);line-height:1.6;}
+.steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--line);}
+.step{display:grid;grid-template-columns:30px minmax(0,1fr) minmax(230px,.9fr);gap:20px;align-items:start;padding:18px 0;border-bottom:1px solid var(--line);}
+.step-num{padding-top:3px;color:var(--muted);font-size:12px;}
+.step h3{margin:0 0 4px;font-size:15px;}
+.step p{margin:0;color:var(--text);font-size:13px;line-height:1.65;}
+.code-wrap{position:relative;min-width:0;}
+.code-wrap pre{margin:0;padding:12px 58px 12px 12px;background:var(--surface);border:1px solid var(--line);border-radius:3px;color:var(--text);font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;}
+.install-actions-note{margin:18px 0 0;color:var(--muted);font-size:12px;line-height:1.7;}
+.under-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:48px;align-items:start;margin-top:24px;}
+.tree{min-width:0;}
+.code-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;color:var(--muted);font-size:11px;}
+.code-head .copy{position:static;}
+.tree pre{margin:0;padding:14px 16px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:3px;color:var(--text);font-size:12px;line-height:1.7;white-space:pre;scrollbar-width:thin;scrollbar-color:var(--line) var(--surface);}
+.fact-stack{list-style:none;margin:0;padding:0;border-top:1px solid var(--line);}
+.fact-stack li{padding:12px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px;line-height:1.65;}
+.fact-stack strong{display:block;margin-bottom:2px;color:var(--text);font-weight:600;}
+.contribute{margin:26px 0 0;}
+.site-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:20px 32px;margin-top:112px;padding:28px 0 44px;border-top:1px solid var(--line);}
+.foot-brand{font-size:18px;font-weight:600;}
+.foot-version{margin-left:8px;color:var(--muted);font-size:12px;font-weight:400;}
+.foot-links{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12px;}
+.foot-links a{color:var(--muted);text-decoration:none;}
+.foot-links a:hover{color:var(--text);text-decoration:underline;text-underline-offset:3px;}
+@media (max-width:900px){.theme-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+.under-grid{grid-template-columns:1fr;gap:32px;}
+}
+@media (max-width:800px){.privacy-grid,.cmd-foot{grid-template-columns:1fr;gap:32px;}
+.tools-grid{grid-template-columns:1fr;}
+}
+@media (max-width:760px){.page{padding:0 18px;--rail:0px;--rail-gap:10px;}
+.site-head{padding-top:20px;}
+.site-nav{gap:18px;}
+.hero{padding:40px 0 72px;}
+.hero-grid{grid-template-columns:1fr;gap:22px;margin-top:30px;}
+.margin-note{max-width:68ch;padding:12px 0 0;border-left:0;border-top:1px solid var(--line);}
+.section,.interlude{margin-top:72px;}
+.sec-head{gap:10px;}
+.sec-num{flex:0 0 auto;}
+.sec-body{margin-left:0;}
+.man-table,.key-table,.target-table{font-size:13px;}
+.man-table thead,.target-table thead{display:none;}
+.man-table tr,.target-table tr{display:block;padding:12px 0;border-bottom:1px solid var(--line);}
+.man-table tr:last-child,.target-table tr:last-child{border-bottom:0;}
+.man-table td,.target-table td{display:block;width:auto !important;padding:0;border:0;}
+.man-table td + td,.target-table td + td{margin-top:6px;}
+.man-table td[data-label]::before,.target-table td[data-label]::before{content:attr(data-label);display:block;margin-bottom:2px;color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase;}
+.man-table tbody tr:hover{background:transparent;}
+.ws-body{min-height:380px;padding:14px;}
+.term-output{height:164px;font-size:12px;}
+.term-result{font-size:12px;}
+.term-form{font-size:1rem;}
+.term-bar{font-size:10px;}
+.tree pre{white-space:pre-wrap;overflow-wrap:anywhere;}
+.snippet{grid-template-columns:1fr auto;}
+.snippet-name{grid-column:1 / -1;}
+.theme-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+.step{grid-template-columns:26px minmax(0,1fr);gap:12px;}
+.code-wrap{grid-column:2;}
+.site-foot{margin-top:72px;padding-bottom:32px;}
+input,textarea,select{font-size:16px !important;}
+}
+@media (max-width:520px){.ws-tabs{gap:0;padding:0 6px;}
+.ws-tab{padding:10px 7px 9px;}
+.actions .btn{flex:1 1 100%;}
+.snippet{grid-template-columns:1fr;}
+.snippet .copy{justify-self:start;}
+.tc-body{font-size:10px;}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}
+*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+.caret{animation:none !important;opacity:1;}
+}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth;}
+}
+</style>
 </head>
 <body>
-  <a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#main">skip to content</a>
+<div class="page">
+<header class="site-head">
+  <a class="wordmark" href="#top">devtab</a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="https://github.com/makitdev/DevTab">GitHub</a>
+    <a href="#install">Install</a>
+  </nav>
+</header>
 
-  <header class="site-header wrap">
-    <a class="brand" href="#top" aria-label="DevTab home">
-      <img src="icons/icon128.png" alt="" width="32" height="32">
-      <span>DevTab<span class="dot">.</span></span>
-    </a>
-    <nav class="site-nav" aria-label="Primary">
-      <a href="#features">Features</a>
-      <a href="#install">Install</a>
-      <a href="https://github.com/makitdev/DevTab">GitHub</a>
-    </nav>
-  </header>
+<noscript><p class="noscript-note">This page's interactive demo needs JavaScript. The extension itself is vanilla JS and runs offline.</p></noscript>
 
-  <main id="main">
-    <section class="hero wrap" id="top" aria-labelledby="hero-title">
-      <div>
-        <p class="eyebrow">Manifest V3 · vanilla JS · local-first</p>
-        <h1 id="hero-title">A <span class="accent">terminal-style</span> new tab for developers and security learners.</h1>
-        <p class="lede">A command prompt, unlimited grouped links, and a set of mini tools that run entirely in your browser.</p>
-        <p class="lede"><strong>No logo. No search box. No tracking.</strong> Just your shortcuts and a prompt that keeps up.</p>
-        <div class="cta-row">
-          <a class="btn primary" href="#install">Install from source</a>
-          <a class="btn" href="https://github.com/makitdev/DevTab">View on GitHub</a>
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <h1 id="hero-title">A new tab that starts with a prompt.</h1>
+    <p class="lede">Links, a few offline tools, and nothing that phones home.</p>
+    <div class="hero-grid">
+      <div class="terminal" data-ui role="region" aria-label="DevTab command demo">
+        <div class="term-bar" aria-hidden="true">
+          <span>~/newtab</span>
+          <span>local session<span class="term-version"> &middot; v1.0.0</span></span>
         </div>
-        <p class="meta-line">Free and open source<span class="sep">·</span>Apache-2.0<span class="sep">·</span>No dependencies</p>
-      </div>
-
-      <div class="terminal" role="img" aria-label="Example DevTab prompt session showing shortcut search, adding a link, a CVE lookup, and the tools command">
-        <div class="terminal-bar" aria-hidden="true">
-          <span class="lights"><span></span><span></span><span></span></span>
-          <span class="terminal-title">dev@devtab: ~</span>
+        <div class="term-output" id="demo-output" role="log" aria-live="polite" aria-label="Command output">
+          <p class="term-result muted">devtab 1.0.0 &mdash; local demo. type help to see commands.</p>
         </div>
-        <div class="terminal-body" aria-hidden="true">
-          <p><span class="prompt">dev@devtab:~$</span> <span class="cmd">gh</span></p>
-          <p class="out">→ <b>GitHub</b> &nbsp;github.com</p>
-          <p><span class="prompt">dev@devtab:~$</span> <span class="cmd">add https://portswigger.net/web-security lab</span></p>
-          <p class="out">added <i>"lab"</i> to inbox</p>
-          <p><span class="prompt">dev@devtab:~$</span> <span class="cmd">cve 2024-3094</span></p>
-          <p class="out">→ <b>NVD</b> &nbsp;CVE-2024-3094</p>
-          <p><span class="prompt">dev@devtab:~$</span> <span class="cmd">tools</span></p>
-          <p class="out">base64 · jwt · sha256 · regex · json · timer</p>
-          <p><span class="prompt">dev@devtab:~$</span><span class="cursor"></span></p>
+        <form class="term-form" id="demo-form" autocomplete="off">
+          <label class="sr-only" for="demo-input">Demo command prompt</label>
+          <span class="ps1" aria-hidden="true">dev@newtab:~<span class="sym">$</span></span>
+          <span class="input-wrap">
+            <input id="demo-input" name="command" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" enterkeyhint="go" placeholder="type a command" aria-describedby="demo-help">
+            <span class="measure" aria-hidden="true">MMMMMMMMMM</span>
+            <span class="caret" id="demo-caret" aria-hidden="true"></span>
+          </span>
+        </form>
+        <div class="term-foot">
+          <div class="chips" role="group" aria-label="Example commands">
+            <span class="try" aria-hidden="true">try</span>
+            <button type="button" class="chip" data-cmd="sha256 devtab" title="Insert this command">sha256 devtab</button>
+            <button type="button" class="chip" data-cmd="cve 2024-3094" title="Insert this command">cve 2024-3094</button>
+            <button type="button" class="chip" data-cmd="theme matrix" title="Insert this command">theme matrix</button>
+          </div>
+          <p class="key-hint" id="demo-help"><kbd>/</kbd> focus <span aria-hidden="true">&middot;</span> <kbd>esc</kbd> blur</p>
         </div>
       </div>
-    </section>
+      <aside class="margin-note">
+        <span class="mark" aria-hidden="true">//</span> These run in your browser, same as the extension. Open DevTools &rarr; Network and watch nothing go out.
+      </aside>
+    </div>
+  </section>
 
-    <section class="wrap" id="features" aria-labelledby="features-title">
-      <div class="section-head">
-        <h2 id="features-title">Everything within reach of the prompt</h2>
-        <p>Built for quick lookups, context switching, and the small jobs you would otherwise open five tabs for.</p>
-      </div>
-      <div class="features">
-        <article class="card">
-          <span class="glyph" aria-hidden="true">&gt;_</span>
-          <h3>Prompt-first</h3>
-          <p>Fuzzy-find any shortcut, complete with <code>Tab</code>, and run site commands like <code>gh</code>, <code>so</code>, <code>mdn</code>, or <code>cve</code>.</p>
-        </article>
-        <article class="card">
-          <span class="glyph" aria-hidden="true">[]</span>
-          <h3>Grouped links</h3>
-          <p>Unlimited groups with drag-to-reorder, pinning, and right-click edit, copy, or delete. Import your most-visited sites in one command.</p>
-        </article>
-        <article class="card">
-          <span class="glyph" aria-hidden="true">{}</span>
-          <h3>Workspace tools</h3>
-          <p>Base64, URL, hex, and HTML entities, JWT decoding, MD5/SHA hashing, timestamps, JSON formatting, regex testing, and random strings.</p>
-        </article>
-        <article class="card">
-          <span class="glyph" aria-hidden="true">#</span>
-          <h3>Notes and snippets</h3>
-          <p>An autosaved scratchpad, reusable commands, a target tracker, saved localhost ports, and a focus timer that only runs while a tab is open.</p>
-        </article>
-        <article class="card">
-          <span class="glyph" aria-hidden="true">~</span>
-          <h3>Six themes</h3>
-          <p>GitHub, Matrix, Dracula, Nord, Amber, and Cyber. Switch from the prompt with <code>theme &lt;name&gt;</code>.</p>
-        </article>
-        <article class="card">
-          <span class="glyph" aria-hidden="true">[x]</span>
-          <h3>Private by default</h3>
-          <p>Everything stays in <code>chrome.storage.local</code>. No accounts, no sync, no analytics, and no network requests of its own.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="wrap" id="install" aria-labelledby="install-title">
-      <div class="install">
+  <section class="section" id="commands" aria-labelledby="commands-title">
+    <div class="sec-head">
+      <span class="sec-num" aria-hidden="true">01 /</span>
+      <h2 id="commands-title">commands</h2>
+    </div>
+    <div class="sec-body">
+      <p class="prose">Everything starts at the prompt. Type a link name to fuzzy-find it; Tab completes and Enter opens. The rest are commands.</p>
+      <div class="man-meta" aria-hidden="true"><span>DEVTAB(1)</span><span>v1.0.0</span><span>Chrome</span></div>
+      <table class="man-table">
+        <caption class="sr-only">Prompt commands</caption>
+        <thead><tr><th scope="col">input</th><th scope="col">does</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-label="input"><code>&lt;text&gt;</code></td>
+            <td data-label="does">Fuzzy-find a saved link. <kbd>Tab</kbd> completes, <kbd>Enter</kbd> opens.</td>
+          </tr>
+          <tr>
+            <td data-label="input"><code>g</code> <code>gh</code> <code>so</code> <code>yt</code> <code>mdn</code> <code>npm</code> <code>shodan</code> <code>edb</code> <code>&lt;query&gt;</code></td>
+            <td data-label="does">Search that site.</td>
+          </tr>
+          <tr>
+            <td data-label="input"><code>cve 2024-3094</code></td>
+            <td data-label="does">Open the NVD entry. Any other argument searches NVD.</td>
+          </tr>
+          <tr>
+            <td data-label="input"><code>add &lt;url&gt; [name]</code></td>
+            <td data-label="does">Add a link to the <code>inbox</code> group.</td>
+          </tr>
+          <tr>
+            <td data-label="input"><code>rm &lt;name&gt;</code></td>
+            <td data-label="does">Delete the best match. An undo toast appears.</td>
+          </tr>
+          <tr>
+            <td data-label="input"><code>theme &lt;name&gt;</code></td>
+            <td data-label="does">Switch theme: <code>github</code> <code>matrix</code> <code>dracula</code> <code>nord</code> <code>amber</code> <code>cyber</code>.</td>
+          </tr>
+          <tr>
+            <td data-label="input"><code>top</code></td>
+            <td data-label="does">Import Chrome's most-visited sites. This is the only command that reads the <code>topSites</code> permission.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="cmd-foot">
         <div>
-          <div class="section-head">
-            <h2 id="install-title">Install in under a minute</h2>
-            <p>DevTab is a Chrome extension with no build step. Load it unpacked from source today.</p>
-          </div>
-          <div class="install-actions">
-            <a class="btn primary" href="https://github.com/makitdev/DevTab/releases/latest">Download latest release</a>
-            <a class="btn" href="https://github.com/makitdev/DevTab#install-unpacked">Read the guide</a>
-          </div>
-          <p class="callout"><strong>Chrome Web Store:</strong> a listing is planned. Until then, use the unpacked install below or grab a zip from Releases.</p>
+          <h3 class="mini-head">keys</h3>
+          <table class="key-table">
+            <caption class="sr-only">Keyboard shortcuts</caption>
+            <tbody>
+              <tr><td><kbd>/</kbd> or <kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>focus the prompt</td></tr>
+              <tr><td><kbd>t</kbd></td><td>open the workspace</td></tr>
+              <tr><td><kbd>1</kbd>&ndash;<kbd>9</kbd></td><td>open the numbered pinned link</td></tr>
+              <tr><td><kbd>?</kbd></td><td>show help</td></tr>
+              <tr><td><kbd>Esc</kbd></td><td>close</td></tr>
+            </tbody>
+          </table>
         </div>
-
-        <ol class="steps">
-          <li>
-            <span class="num" aria-hidden="true">1</span>
-            <div>
-              <h3>Open the extensions page</h3>
-              <p>Go to <code>chrome://extensions</code> and turn on <strong>Developer mode</strong>.</p>
-            </div>
-          </li>
-          <li>
-            <span class="num" aria-hidden="true">2</span>
-            <div>
-              <h3>Load the folder</h3>
-              <p>Download and unzip the latest release, or clone the repository, then click <strong>Load unpacked</strong> and select the DevTab folder.</p>
-            </div>
-          </li>
-          <li>
-            <span class="num" aria-hidden="true">3</span>
-            <div>
-              <h3>Open a new tab</h3>
-              <p>Chrome may ask you to confirm keeping the extension's new tab page. Then press <code>/</code> and try <code>help</code>.</p>
-            </div>
-          </li>
-        </ol>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="wrap">
-      <div class="footer-top">
-        <a class="brand" href="#top" aria-label="DevTab home">
-          <img src="icons/icon128.png" alt="" width="24" height="24">
-          <span>DevTab<span class="dot">.</span></span>
-        </a>
-        <nav class="footer-links" aria-label="Project links">
-          <a href="https://github.com/makitdev/DevTab">GitHub</a>
-          <a href="https://github.com/makitdev/DevTab#readme">README</a>
-          <a href="https://github.com/makitdev/DevTab/blob/main/CONTRIBUTING.md">Contributing</a>
-          <a href="https://github.com/makitdev/DevTab/blob/main/SECURITY.md">Security</a>
-          <a href="https://github.com/makitdev/DevTab/blob/main/CHANGELOG.md">Changelog</a>
-        </nav>
-      </div>
-      <div class="footer-bottom">
-        <span>Apache-2.0 licensed</span>
-        <span>Vanilla JavaScript, Manifest V3</span>
-        <span>Data stays on your machine</span>
+        <div class="links-note">
+          <h3 class="mini-head">links</h3>
+          <p>Unlimited, grouped links. Drag to reorder or move between groups. Right-click to edit, pin, copy or delete.</p>
+        </div>
       </div>
     </div>
-  </footer>
+  </section>
+
+  <section class="section" id="workspace" aria-labelledby="workspace-title">
+    <div class="sec-head">
+      <span class="sec-num" aria-hidden="true">02 /</span>
+      <h2 id="workspace-title">workspace</h2>
+    </div>
+    <div class="sec-body">
+      <p class="prose">Press <kbd>t</kbd> in the extension. The tools tab below is live; the other tabs are example data.</p>
+      <div class="ws" data-ui>
+        <div class="ws-tabs" role="tablist" aria-label="Workspace tabs">
+          <button type="button" class="ws-tab" id="tab-tools" role="tab" aria-selected="true" aria-controls="panel-tools" tabindex="0">tools</button>
+          <button type="button" class="ws-tab" id="tab-notes" role="tab" aria-selected="false" aria-controls="panel-notes" tabindex="-1">notes</button>
+          <button type="button" class="ws-tab" id="tab-snippets" role="tab" aria-selected="false" aria-controls="panel-snippets" tabindex="-1">snippets</button>
+          <button type="button" class="ws-tab" id="tab-targets" role="tab" aria-selected="false" aria-controls="panel-targets" tabindex="-1">targets</button>
+          <button type="button" class="ws-tab" id="tab-ports" role="tab" aria-selected="false" aria-controls="panel-ports" tabindex="-1">ports</button>
+          <button type="button" class="ws-tab" id="tab-timer" role="tab" aria-selected="false" aria-controls="panel-timer" tabindex="-1">timer</button>
+        </div>
+        <div class="ws-body">
+          <div role="tabpanel" id="panel-tools" aria-labelledby="tab-tools" tabindex="0">
+            <div class="tools-grid">
+              <div class="tool">
+                <div class="tool-head"><h3>json</h3><span class="tool-note">format / minify</span></div>
+                <label class="sr-only" for="json-in">JSON input</label>
+                <textarea id="json-in" spellcheck="false" autocomplete="off" rows="6">{"name":"devtab","version":"1.0.0","permissions":["storage","favicon","topSites"],"network":0}</textarea>
+                <div class="tool-actions">
+                  <button type="button" class="btn small" id="json-format">format</button>
+                  <button type="button" class="btn small" id="json-minify">minify</button>
+                </div>
+                <div class="tool-out">
+                  <div class="tool-label">output</div>
+                  <pre id="json-out" aria-live="polite"></pre>
+                </div>
+              </div>
+              <div class="tool">
+                <div class="tool-head"><h3>regex</h3><span class="tool-note">live</span></div>
+                <div class="regex-fields">
+                  <div class="field">
+                    <label for="rx-pattern">pattern</label>
+                    <input id="rx-pattern" type="text" value="CVE-\d{4}-\d{4,}" spellcheck="false" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label for="rx-flags">flags</label>
+                    <input id="rx-flags" type="text" value="gi" maxlength="6" spellcheck="false" autocomplete="off">
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="rx-text">test text</label>
+                  <textarea id="rx-text" rows="4" spellcheck="false">CVE-2024-3094 is the xz backdoor. CVE-2021-44228 is Log4Shell.</textarea>
+                </div>
+                <div class="tool-out">
+                  <div class="tool-label">matches</div>
+                  <pre id="rx-out" aria-live="polite"></pre>
+                </div>
+              </div>
+            </div>
+            <p class="tool-index">also in tools: base64 &middot; url &middot; hex &middot; html-entity &middot; jwt (decode only, never verifies) &middot; md5 &middot; sha-1 &middot; sha-256 &middot; sha-512 &middot; timestamp &middot; random string.</p>
+          </div>
+
+          <div role="tabpanel" id="panel-notes" aria-labelledby="tab-notes" tabindex="0" hidden>
+            <div class="pad">
+              <pre># scratch
+- check the staging scope before scanning
+- CVE-2024-3094 notes
+- read the report template</pre>
+              <div class="pad-foot"><span>example note</span><span>autosaved in the extension</span></div>
+            </div>
+          </div>
+
+          <div role="tabpanel" id="panel-snippets" aria-labelledby="tab-snippets" tabindex="0" hidden>
+            <div class="snippet-list">
+              <div class="snippet">
+                <span class="snippet-name">headers</span>
+                <code id="snip-1">curl -sI https://example.com</code>
+                <button type="button" class="copy" data-copy="#snip-1" aria-label="Copy headers snippet">copy</button>
+              </div>
+              <div class="snippet">
+                <span class="snippet-name">listeners</span>
+                <code id="snip-2">ss -tulpn</code>
+                <button type="button" class="copy" data-copy="#snip-2" aria-label="Copy listeners snippet">copy</button>
+              </div>
+              <div class="snippet">
+                <span class="snippet-name">b64</span>
+                <code id="snip-3">printf '%s' "$1" | base64 -w0</code>
+                <button type="button" class="copy" data-copy="#snip-3" aria-label="Copy base64 snippet">copy</button>
+              </div>
+            </div>
+            <p class="fineprint">Example snippets. Copy works here; the extension stores your own.</p>
+          </div>
+
+          <div role="tabpanel" id="panel-targets" aria-labelledby="tab-targets" tabindex="0" hidden>
+            <table class="target-table">
+              <caption class="sr-only">Example targets</caption>
+              <thead><tr><th scope="col">target</th><th scope="col">status</th><th scope="col">note</th></tr></thead>
+              <tbody>
+                <tr><td data-label="target">program-a</td><td data-label="status"><span class="status status-testing">testing</span></td><td data-label="note">scope: *.example.test</td></tr>
+                <tr><td data-label="target">program-b</td><td data-label="status"><span class="status status-reported">reported</span></td><td data-label="note">report sent</td></tr>
+                <tr><td data-label="target">program-c</td><td data-label="status"><span class="status status-todo">todo</span></td><td data-label="note">read scope</td></tr>
+                <tr><td data-label="target">program-d</td><td data-label="status"><span class="status status-done">done</span></td><td data-label="note">retest later</td></tr>
+              </tbody>
+            </table>
+            <p class="target-note">Only record programs you are authorized to test.</p>
+          </div>
+
+          <div role="tabpanel" id="panel-ports" aria-labelledby="tab-ports" tabindex="0" hidden>
+            <div class="port-list">
+              <div class="port-row"><span class="dot up" aria-hidden="true"></span><span>dev server <span class="port-host">localhost:3000</span></span><span class="port-state">up</span></div>
+              <div class="port-row"><span class="dot down" aria-hidden="true"></span><span>postgres <span class="port-host">localhost:5432</span></span><span class="port-state">down</span></div>
+              <div class="port-row"><span class="dot up" aria-hidden="true"></span><span>proxy <span class="port-host">localhost:8080</span></span><span class="port-state">up</span></div>
+            </div>
+            <p class="fineprint">Example ports. The extension checks saved localhost ports from the new tab.</p>
+          </div>
+
+          <div role="tabpanel" id="panel-timer" aria-labelledby="tab-timer" tabindex="0" hidden>
+            <div class="timer-panel">
+              <div class="timer-time">25:00</div>
+              <div class="timer-mode">focus</div>
+              <div class="timer-sub">break 5:00</div>
+              <div class="timer-note">The timer only alerts while a new tab is open.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="fineprint">The mock keeps nothing. In the extension, notes, snippets, targets and ports live in <code>chrome.storage.local</code>.</p>
+    </div>
+  </section>
+
+  <section class="section" id="privacy" aria-labelledby="privacy-title">
+    <div class="sec-head">
+      <span class="sec-num" aria-hidden="true">03 /</span>
+      <h2 id="privacy-title">privacy</h2>
+    </div>
+    <div class="sec-body">
+      <p class="prose">DevTab stores everything in <code>chrome.storage.local</code> and makes no network requests. The permissions are the part worth reading.</p>
+      <div class="privacy-grid">
+        <div>
+          <h3 class="mini-head">permissions requested</h3>
+          <dl class="perm-list">
+            <div class="perm-row"><dt><code>storage</code></dt><dd>Saves links, notes, snippets, targets, ports, and settings.</dd></div>
+            <div class="perm-row"><dt><code>favicon</code></dt><dd>Shows site icons from Chrome's local cache.</dd></div>
+            <div class="perm-row"><dt><code>topSites</code></dt><dd>Read only when you run <code>top</code>, to import Chrome's most-visited sites.</dd></div>
+          </dl>
+        </div>
+        <div>
+          <h3 class="mini-head">network</h3>
+          <ul class="fact-list">
+            <li><span class="fact-label">Network requests made by DevTab:</span> <span class="fact-value">0.</span></li>
+            <li><span class="fact-label">Analytics:</span> <span class="fact-value">none.</span></li>
+            <li><span class="fact-label">Data location:</span> <span class="fact-value"><code>chrome.storage.local</code>, on this machine.</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="prose">Nothing is synced or sent anywhere. Settings has JSON export/import for backups. Imports are validated; any non-http(s) link is dropped.</p>
+      <p class="prose">Security reports: read <a href="https://github.com/makitdev/DevTab/blob/main/SECURITY.md">SECURITY.md</a>. Do not open a public issue.</p>
+    </div>
+  </section>
+
+  <section class="interlude" id="themes" aria-labelledby="themes-title">
+    <div class="sec-head">
+      <span class="sec-num" aria-hidden="true">::</span>
+      <h2 id="themes-title">themes</h2>
+    </div>
+    <div class="sec-body">
+      <p class="prose">Six themes. Pick one here, or run <code>theme &lt;name&gt;</code> in the extension.</p>
+      <div class="theme-grid">
+        <button type="button" class="theme-card" data-theme="github" data-theme-name="github" aria-pressed="true" aria-label="Use the github theme">
+          <span class="tc-bar"><span class="tc-name">github</span><span class="tc-active">active</span></span>
+          <span class="tc-body"><span class="tc-line"><span class="tc-prompt">~$</span> theme</span><span class="tc-line tc-muted">daily  dev  labs</span></span>
+        </button>
+        <button type="button" class="theme-card" data-theme="matrix" data-theme-name="matrix" aria-pressed="false" aria-label="Use the matrix theme">
+          <span class="tc-bar"><span class="tc-name">matrix</span><span class="tc-active">active</span></span>
+          <span class="tc-body"><span class="tc-line"><span class="tc-prompt">~$</span> theme</span><span class="tc-line tc-muted">daily  dev  labs</span></span>
+        </button>
+        <button type="button" class="theme-card" data-theme="dracula" data-theme-name="dracula" aria-pressed="false" aria-label="Use the dracula theme">
+          <span class="tc-bar"><span class="tc-name">dracula</span><span class="tc-active">active</span></span>
+          <span class="tc-body"><span class="tc-line"><span class="tc-prompt">~$</span> theme</span><span class="tc-line tc-muted">daily  dev  labs</span></span>
+        </button>
+        <button type="button" class="theme-card" data-theme="nord" data-theme-name="nord" aria-pressed="false" aria-label="Use the nord theme">
+          <span class="tc-bar"><span class="tc-name">nord</span><span class="tc-active">active</span></span>
+          <span class="tc-body"><span class="tc-line"><span class="tc-prompt">~$</span> theme</span><span class="tc-line tc-muted">daily  dev  labs</span></span>
+        </button>
+        <button type="button" class="theme-card" data-theme="amber" data-theme-name="amber" aria-pressed="false" aria-label="Use the amber theme">
+          <span class="tc-bar"><span class="tc-name">amber</span><span class="tc-active">active</span></span>
+          <span class="tc-body"><span class="tc-line"><span class="tc-prompt">~$</span> theme</span><span class="tc-line tc-muted">daily  dev  labs</span></span>
+        </button>
+        <button type="button" class="theme-card" data-theme="cyber" data-theme-name="cyber" aria-pressed="false" aria-label="Use the cyber theme">
+          <span class="tc-bar"><span class="tc-name">cyber</span><span class="tc-active">active</span></span>
+          <span class="tc-body"><span class="tc-line"><span class="tc-prompt">~$</span> theme</span><span class="tc-line tc-muted">daily  dev  labs</span></span>
+        </button>
+      </div>
+      <p class="theme-status" aria-live="polite">current theme: <span id="theme-current">github</span></p>
+    </div>
+  </section>
+
+  <section class="section" id="install" aria-labelledby="install-title">
+    <div class="sec-head">
+      <span class="sec-num" aria-hidden="true">04 /</span>
+      <h2 id="install-title">install</h2>
+    </div>
+    <div class="sec-body">
+      <p class="install-lead">Not on the Chrome Web Store yet. You install it unpacked.</p>
+      <ol class="steps">
+        <li class="step">
+          <span class="step-num" aria-hidden="true">1.</span>
+          <div class="step-copy">
+            <h3>Open extensions.</h3>
+            <p>Open <code>chrome://extensions</code> and enable <strong>Developer mode</strong>.</p>
+          </div>
+          <div class="code-wrap">
+            <pre><code id="copy-ext">chrome://extensions
+Developer mode: on</code></pre>
+            <button type="button" class="copy" data-copy="#copy-ext" aria-label="Copy step 1">copy</button>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">2.</span>
+          <div class="step-copy">
+            <h3>Load unpacked.</h3>
+            <p>Click <strong>Load unpacked</strong> and select this folder.</p>
+          </div>
+          <div class="code-wrap">
+            <pre><code id="copy-load">Load unpacked</code></pre>
+            <button type="button" class="copy" data-copy="#copy-load" aria-label="Copy step 2">copy</button>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">3.</span>
+          <div class="step-copy">
+            <h3>Open a new tab.</h3>
+            <p>Open a new tab. Chrome may ask you to confirm keeping the extension's new tab page.</p>
+          </div>
+          <div class="code-wrap">
+            <pre><code id="copy-newtab">chrome://newtab</code></pre>
+            <button type="button" class="copy" data-copy="#copy-newtab" aria-label="Copy step 3">copy</button>
+          </div>
+        </li>
+      </ol>
+      <p class="install-actions-note">Chrome only. Manual install; updates are manual too. Tagged releases publish a zip.</p>
+      <div class="actions">
+        <a class="btn primary" href="https://github.com/makitdev/DevTab/releases">Download latest release</a>
+        <a class="btn" href="https://github.com/makitdev/DevTab">View source</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="interlude" id="under-the-hood" aria-labelledby="under-title">
+    <div class="sec-head">
+      <span class="sec-num" aria-hidden="true">::</span>
+      <h2 id="under-title">under the hood</h2>
+    </div>
+    <div class="sec-body">
+      <p class="prose">The extension is Manifest V3 and small enough to read. There is no build step between these files and the new tab.</p>
+      <div class="under-grid">
+        <div class="tree">
+          <div class="code-head">
+            <span>files</span>
+            <button type="button" class="copy" data-copy="#tree-code" aria-label="Copy the file tree">copy</button>
+          </div>
+          <pre><code id="tree-code">newtab.html     page shell
+css/style.css   themes and layout
+js/main.js      links, prompt, keys, settings
+js/workspace.js tools, notes, snippets, targets, ports, timer
+js/codec.js     pure functions (encoding, hashing,
+                URL safety, fuzzy search), unit tested
+js/store.js     state, defaults, backup validation
+js/ui.js        DOM helpers (text-only rendering, no innerHTML)
+js/rain.js      optional background effect
+test/           node:test suite</code></pre>
+        </div>
+        <ul class="fact-stack">
+          <li><strong>No build step, no dependencies.</strong>Vanilla JS and ES modules, loaded as they are.</li>
+          <li><strong>Unit-tested core logic.</strong><code>js/codec.js</code> holds the pure functions; <code>npm test</code> runs the <code>node:test</code> suite.</li>
+          <li><strong>CI on every push.</strong>Tests and manifest validation run on every push and pull request. Tagged releases build a zip.</li>
+          <li><strong>Text-only DOM.</strong><code>js/ui.js</code> uses helpers, not <code>innerHTML</code>.</li>
+        </ul>
+      </div>
+      <p class="prose contribute">Contributions are welcome. Read <a href="https://github.com/makitdev/DevTab/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span class="foot-brand">devtab <span class="foot-version">v1.0.0</span></span>
+  <nav class="foot-links" aria-label="Project">
+    <a href="https://github.com/makitdev/DevTab/blob/main/LICENSE">Apache-2.0</a>
+    <a href="https://github.com/makitdev/DevTab">GitHub</a>
+    <a href="https://github.com/makitdev/DevTab/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>
+    <a href="https://github.com/makitdev/DevTab/blob/main/CHANGELOG.md">Changelog</a>
+  </nav>
+</footer>
+</div>
+<div class="sr-only" id="copy-status" aria-live="polite"></div>
+<script>
+(function () {
+  "use strict";
+  var THEMES = ["github", "matrix", "dracula", "nord", "amber", "cyber"];
+  var THEME_KEY = "devtab-theme";
+  var root = document.documentElement;
+  var themeButtons = Array.prototype.slice.call(document.querySelectorAll(".theme-card"));
+  var themeCurrent = document.getElementById("theme-current");
+  var themeMeta = document.querySelector('meta[name="theme-color"]');
+
+  function setTheme(name) {
+    if (THEMES.indexOf(name) === -1) return false;
+    root.setAttribute("data-theme", name);
+    try { localStorage.setItem(THEME_KEY, name); } catch (e) {}
+    themeButtons.forEach(function (btn) {
+      btn.setAttribute("aria-pressed", String(btn.getAttribute("data-theme-name") === name));
+    });
+    if (themeCurrent) themeCurrent.textContent = name;
+    var bg = getComputedStyle(root).getPropertyValue("--bg").trim();
+    if (bg && themeMeta) themeMeta.setAttribute("content", bg);
+    return true;
+  }
+
+  var input = document.getElementById("demo-input");
+  var form = document.getElementById("demo-form");
+  var output = document.getElementById("demo-output");
+  var caret = document.getElementById("demo-caret");
+  var measure = document.querySelector(".measure");
+  var history = [];
+  var histIndex = 0;
+
+  function addEcho(cmd) {
+    var p = document.createElement("p");
+    p.className = "term-echo";
+    var ps = document.createElement("span");
+    ps.className = "ps1-small";
+    ps.textContent = "dev@newtab:~";
+    var sym = document.createElement("span");
+    sym.className = "sym";
+    sym.textContent = "$";
+    ps.appendChild(sym);
+    var c = document.createElement("span");
+    c.className = "cmd";
+    c.textContent = cmd;
+    p.appendChild(ps);
+    p.appendChild(document.createTextNode(" "));
+    p.appendChild(c);
+    output.appendChild(p);
+    output.scrollTop = output.scrollHeight;
+  }
+
+  function addOutput(text, cls) {
+    var el = text.indexOf("\n") !== -1 ? document.createElement("pre") : document.createElement("p");
+    el.className = "term-result" + (cls ? " " + cls : "");
+    el.textContent = text;
+    output.appendChild(el);
+    output.scrollTop = output.scrollHeight;
+  }
+
+  function b64(str) {
+    var bytes = new TextEncoder().encode(str);
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  }
+
+  function sha256(str) {
+    if (!window.crypto || !window.crypto.subtle) return Promise.reject(new Error("crypto.subtle is unavailable"));
+    return window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+        return b.toString(16).padStart(2, "0");
+      }).join("");
+    });
+  }
+
+  function b64url(str) {
+    var s = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    var bin = atob(s);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  function decodeJwt(token) {
+    var parts = token.split(".");
+    if (parts.length < 2) return "not a JWT: expected header.payload";
+    var header, payload;
+    try { header = JSON.parse(b64url(parts[0])); } catch (e) { return "could not decode header"; }
+    try { payload = JSON.parse(b64url(parts[1])); } catch (e) { return "could not decode payload"; }
+    return "header\n" + JSON.stringify(header, null, 2) + "\n\npayload\n" + JSON.stringify(payload, null, 2) + "\n\ndecode only, never verifies";
+  }
+
+  function timestamp(value) {
+    var n = Number(value);
+    if (!isFinite(n)) return "not a unix timestamp: " + value;
+    var d = new Date(n * 1000);
+    if (isNaN(d.getTime())) return "not a unix timestamp: " + value;
+    return "iso    " + d.toISOString() + "\nlocal  " + d.toLocaleString();
+  }
+
+  var HELP = [
+    "commands",
+    "  help                  this list",
+    "  theme <name>          github, matrix, dracula, nord, amber, cyber",
+    "  cve <id>              opens nvd.nist.gov in the real extension",
+    "  b64 <text>            base64 encode",
+    "  sha256 <text>         sha-256 via crypto.subtle",
+    "  jwt <token>           decode header and payload (never verifies)",
+    "  ts <unix>             convert a unix timestamp",
+    "  install               jump to install",
+    "  clear                 clear this session",
+    "",
+    "everything here runs locally. no network requests."
+  ].join("\n");
+
+  function scrollInstall() {
+    var el = document.getElementById("install");
+    if (!el) return;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }
+
+  function run(raw) {
+    var cmd = raw.trim();
+    if (!cmd) return;
+    history.push(cmd);
+    histIndex = history.length;
+    var head = cmd.split(/\s+/)[0].toLowerCase();
+    var arg = cmd.slice(head.length).trim();
+    if (head === "clear") {
+      output.replaceChildren();
+      addOutput("session cleared.", "muted");
+      return;
+    }
+    addEcho(cmd);
+    switch (head) {
+      case "help":
+        addOutput(HELP);
+        break;
+      case "theme":
+        if (!arg) { addOutput("usage: theme github|matrix|dracula|nord|amber|cyber"); break; }
+        if (setTheme(arg.toLowerCase())) addOutput("theme set to " + arg.toLowerCase() + ".");
+        else addOutput("unknown theme. try: github, matrix, dracula, nord, amber, cyber");
+        break;
+      case "cve":
+        addOutput(arg ? "-> opens nvd.nist.gov in the real extension" : "usage: cve 2024-3094", arg ? "muted" : "");
+        break;
+      case "b64":
+        if (!arg) { addOutput("usage: b64 <text>"); break; }
+        try { addOutput(b64(arg)); } catch (e) { addOutput("could not encode: " + e.message, "err"); }
+        break;
+      case "sha256":
+        if (!arg) { addOutput("usage: sha256 <text>"); break; }
+        sha256(arg).then(function (hex) { addOutput(hex); }).catch(function (e) { addOutput("could not hash: " + e.message, "err"); });
+        break;
+      case "jwt":
+        if (!arg) { addOutput("usage: jwt <token>"); break; }
+        addOutput(decodeJwt(arg));
+        break;
+      case "ts":
+        if (!arg) { addOutput("usage: ts <unix>"); break; }
+        addOutput(timestamp(arg));
+        break;
+      case "install":
+        addOutput("-> install", "muted");
+        scrollInstall();
+        break;
+      default:
+        addOutput("command not found, try help", "muted");
+    }
+  }
+
+  function updateCaret() {
+    var w = measure.getBoundingClientRect().width / 10;
+    if (!w) return;
+    var pos = input.selectionStart == null ? input.value.length : input.selectionStart;
+    var x = Math.max(0, Math.min(input.clientWidth - 2, pos * w - input.scrollLeft));
+    caret.style.transform = "translateX(" + x + "px)";
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var raw = input.value;
+    input.value = "";
+    updateCaret();
+    run(raw);
+  });
+
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { input.blur(); return; }
+    if (e.key === "ArrowUp") {
+      if (histIndex > 0) {
+        histIndex--;
+        input.value = history[histIndex];
+        input.setSelectionRange(input.value.length, input.value.length);
+        updateCaret();
+      }
+      e.preventDefault();
+    } else if (e.key === "ArrowDown") {
+      if (histIndex < history.length - 1) {
+        histIndex++;
+        input.value = history[histIndex];
+      } else {
+        histIndex = history.length;
+        input.value = "";
+      }
+      input.setSelectionRange(input.value.length, input.value.length);
+      updateCaret();
+      e.preventDefault();
+    }
+  });
+
+  ["input", "keyup", "click", "focus", "blur", "select"].forEach(function (ev) {
+    input.addEventListener(ev, updateCaret);
+  });
+  document.addEventListener("selectionchange", function () {
+    if (document.activeElement === input) updateCaret();
+  });
+  window.addEventListener("resize", updateCaret);
+
+  Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (chip) {
+    chip.addEventListener("click", function () {
+      input.value = chip.getAttribute("data-cmd") || "";
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+      updateCaret();
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+    e.preventDefault();
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+    updateCaret();
+  });
+
+  themeButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () { setTheme(btn.getAttribute("data-theme-name")); });
+  });
+
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".ws-tab"));
+
+  function selectTab(tab, focus) {
+    tabs.forEach(function (t) {
+      var on = t === tab;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      var panel = document.getElementById(t.getAttribute("aria-controls"));
+      if (panel) panel.hidden = !on;
+    });
+    if (focus) tab.focus();
+  }
+
+  tabs.forEach(function (tab, i) {
+    tab.addEventListener("click", function () { selectTab(tab); });
+    tab.addEventListener("keydown", function (e) {
+      var next = -1;
+      if (e.key === "ArrowRight") next = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft") next = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") next = 0;
+      else if (e.key === "End") next = tabs.length - 1;
+      if (next !== -1) { e.preventDefault(); selectTab(tabs[next], true); }
+    });
+  });
+
+  var jsonIn = document.getElementById("json-in");
+  var jsonOut = document.getElementById("json-out");
+
+  function formatJson(min) {
+    try {
+      jsonOut.textContent = JSON.stringify(JSON.parse(jsonIn.value), null, min ? 0 : 2);
+      jsonOut.classList.remove("err");
+    } catch (e) {
+      jsonOut.textContent = "invalid JSON: " + e.message;
+      jsonOut.classList.add("err");
+    }
+  }
+
+  jsonIn.addEventListener("input", function () { formatJson(false); });
+  document.getElementById("json-format").addEventListener("click", function () { formatJson(false); });
+  document.getElementById("json-minify").addEventListener("click", function () { formatJson(true); });
+
+  var rxPattern = document.getElementById("rx-pattern");
+  var rxFlags = document.getElementById("rx-flags");
+  var rxText = document.getElementById("rx-text");
+  var rxOut = document.getElementById("rx-out");
+
+  function runRegex() {
+    rxOut.classList.remove("err");
+    if (!rxPattern.value) { rxOut.textContent = "enter a pattern"; return; }
+    var re;
+    try {
+      var flags = rxFlags.value;
+      re = new RegExp(rxPattern.value, flags.indexOf("g") === -1 ? flags + "g" : flags);
+    } catch (e) {
+      rxOut.textContent = "invalid regex: " + e.message;
+      rxOut.classList.add("err");
+      return;
+    }
+    var matches = [], m, guard = 0;
+    while ((m = re.exec(rxText.value)) !== null && guard++ < 100) {
+      matches.push("[" + m.index + "] " + JSON.stringify(m[0]));
+      if (m[0] === "") re.lastIndex++;
+    }
+    rxOut.textContent = matches.length ? matches.length + (matches.length === 1 ? " match\n" : " matches\n") + matches.join("\n") : "no matches";
+  }
+
+  [rxPattern, rxFlags, rxText].forEach(function (el) { el.addEventListener("input", runRegex); });
+
+  var copyStatus = document.getElementById("copy-status");
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function (btn) {
+    btn.addEventListener("click", function () {
+      var el = document.querySelector(btn.getAttribute("data-copy"));
+      if (!el) return;
+      function done(ok) {
+        var old = btn.textContent;
+        btn.textContent = ok ? "copied" : "copy failed";
+        copyStatus.textContent = ok ? "Copied to clipboard." : "Copy failed. Select the text and copy manually.";
+        setTimeout(function () { btn.textContent = old; }, 1400);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(el.textContent).then(function () { done(true); }, function () { done(fallbackCopy(el.textContent)); });
+      } else {
+        done(fallbackCopy(el.textContent));
+      }
+    });
+  });
+
+  setTheme(root.getAttribute("data-theme") || "github");
+  updateCaret();
+  formatJson(false);
+  runRegex();
+})();
+</script>
 </body>
 </html>
