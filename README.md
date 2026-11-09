@@ -58,6 +58,7 @@ Permissions: `storage` (save your data), `favicon` (site icons from Chrome's cac
 
 ```
 npm test        # unit tests for the pure logic in js/codec.js (Node 18+)
+npm run validate  # check manifest.json (version, icons, referenced files)
 ```
 
 ```
@@ -73,3 +74,16 @@ test/           node:test suite
 ```
 
 After editing, reload the extension at `chrome://extensions` and open a new tab.
+
+## Contributing
+
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) for how to run
+and test the project and how to send a pull request, and
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community expectations.
+
+- Bugs and feature requests: use the issue templates.
+- Security problems: report them privately per [SECURITY.md](SECURITY.md).
+- Changes by version: see [CHANGELOG.md](CHANGELOG.md).
+
+CI runs `npm test` and `npm run validate` on every push and pull request. Pushing a
+`vX.Y.Z` tag builds the extension zip and publishes a GitHub Release.

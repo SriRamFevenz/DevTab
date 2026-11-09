@@ -1,0 +1,68 @@
+name: Bug report
+description: Something in DevTab is broken or behaves unexpectedly
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please search existing issues first.
+        Do **not** report security vulnerabilities here; see [SECURITY.md](../blob/main/SECURITY.md).
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+      placeholder: When I press Enter after typing "gh", ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: What should have happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps that reliably trigger the bug.
+      placeholder: |
+        1. Open a new tab
+        2. Type ...
+        3. Press ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: DevTab version
+      description: From manifest.json or the extension card at chrome://extensions.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: "Chrome 141 on Windows 11"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How are you running DevTab?
+      options:
+        - Loaded unpacked from source
+        - Chrome Web Store (or other store)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots, console errors, or other context
+      description: Open DevTools on the new tab page for console errors. Drag images here if useful.
+    validations:
+      required: false

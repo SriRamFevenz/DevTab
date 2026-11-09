@@ -1,0 +1,63 @@
+name: Feature request
+description: Suggest an idea or improvement for DevTab
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. Please search existing issues and the roadmap first.
+        Keep in mind DevTab stays local-first, dependency-free, and makes no network requests.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the need or frustration, not just the solution.
+      placeholder: I often need to ... but there is no way to ...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like DevTab to do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, workarounds, or existing tools.
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Prompt / search
+        - Links and groups
+        - Workspace tools
+        - Notes / snippets / targets / ports / timer
+        - Themes and settings
+        - Import / export
+        - Accessibility
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Fit with the project
+      options:
+        - label: This can work offline with local storage only.
+          required: true
+        - label: This does not require a new runtime dependency or build step.
+          required: false
+  - type: textarea
+    id: extra
+    attributes:
+      label: Mockups or extra context
+    validations:
+      required: false

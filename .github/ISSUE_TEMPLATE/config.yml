@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/SriRamFevenz/DevTab/security/advisories/new
+    about: Report security issues privately. Do not open a public issue.
+  - name: Question or general discussion
+    url: https://github.com/SriRamFevenz/DevTab/issues
+    about: Ask a question or check existing issues before filing a new one.

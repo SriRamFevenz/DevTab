@@ -4,7 +4,11 @@
   "private": true,
   "type": "module",
   "description": "Terminal-style new tab for developers and security learners (Chrome, Manifest V3).",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "validate": "node scripts/validate-manifest.mjs"
   }
 }
