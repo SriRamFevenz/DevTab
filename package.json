@@ -1,0 +1,10 @@
+{
+  "name": "devtab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Terminal-style new tab for developers and security learners (Chrome, Manifest V3).",
+  "scripts": {
+    "test": "node --test"
+  }
+}
