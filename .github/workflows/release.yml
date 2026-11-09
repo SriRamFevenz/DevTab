@@ -51,9 +51,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          gh release upload "$GITHUB_REF_NAME" "devtab-$GITHUB_REF_NAME.zip" --clobber 2>/dev/null || \
           gh release create "$GITHUB_REF_NAME" "devtab-$GITHUB_REF_NAME.zip" \
             --title "DevTab $GITHUB_REF_NAME" \
-            --generate-notes
+            --generate-notes || true
 
       - name: Publish to GitHub Packages
         env:
