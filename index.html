@@ -98,6 +98,10 @@ kbd{display:inline-block;min-width:1.7em;padding:0 5px;text-align:center;border:
 .key-hint{margin:0;color:var(--muted);font-size:11px;}
 .key-hint kbd{font-size:10px;}
 .section,.interlude{margin-top:112px;}
+.demo-video{display:block;width:100%;height:auto;background:#0d1117;border:1px solid var(--line);}
+.demo-video-desktop{aspect-ratio:16/9;}
+.demo-video-mobile{display:none;aspect-ratio:9/16;}
+.demo-formats{display:flex;flex-wrap:wrap;gap:12px 24px;margin-top:16px;font-size:13px;}
 .sec-head{display:flex;align-items:baseline;gap:var(--rail-gap);border-top:1px solid var(--line);padding-top:14px;margin-bottom:28px;}
 .sec-num{flex:0 0 var(--rail);color:var(--muted);font-size:12px;}
 .sec-head h2{margin:0;font-size:clamp(1.5rem,2.8vw,2rem);line-height:1.2;letter-spacing:-.02em;}
@@ -244,6 +248,8 @@ kbd{display:inline-block;min-width:1.7em;padding:0 5px;text-align:center;border:
 .hero-grid{grid-template-columns:1fr;gap:22px;margin-top:30px;}
 .margin-note{max-width:68ch;padding:12px 0 0;border-left:0;border-top:1px solid var(--line);}
 .section,.interlude{margin-top:72px;}
+.demo-video-desktop{display:none;}
+.demo-video-mobile{display:block;width:min(100%,360px);margin:0 auto;}
 .sec-head{gap:10px;}
 .sec-num{flex:0 0 auto;}
 .sec-body{margin-left:0;}
@@ -295,6 +301,7 @@ input,textarea,select{font-size:16px !important;}
   <a class="wordmark" href="#top">devtab</a>
   <a class="brand-logo" href="#top" aria-label="DevTab home"><img src="icons/icon32.png" alt="" aria-hidden="true"></a>
   <nav class="site-nav" aria-label="Primary">
+    <a href="#demo">Demo</a>
     <a href="https://github.com/makitdev/DevTab">GitHub</a>
     <a class="github-star" href="https://github.com/makitdev/DevTab" aria-label="Star DevTab on GitHub">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .75a.75.75 0 0 1 .673.418l1.94 3.93 4.337.63a.75.75 0 0 1 .416 1.28l-3.138 3.058.741 4.319a.75.75 0 0 1-1.088.79L8 13.136l-3.881 2.04a.75.75 0 0 1-1.088-.79l.741-4.32L.634 7.01a.75.75 0 0 1 .416-1.28l4.337-.63 1.94-3.93A.75.75 0 0 1 8 .75Z"/></svg>
@@ -342,6 +349,27 @@ input,textarea,select{font-size:16px !important;}
       <aside class="margin-note">
         <span class="mark" aria-hidden="true">//</span> These run in your browser, same as the extension. Open DevTools &rarr; Network and watch nothing go out.
       </aside>
+    </div>
+  </section>
+
+  <section class="section" id="demo" aria-labelledby="demo-title">
+    <div class="sec-head">
+      <span class="sec-num" aria-hidden="true">::</span>
+      <h2 id="demo-title">product demo</h2>
+    </div>
+    <div class="sec-body">
+      <video class="demo-video demo-video-desktop" controls playsinline preload="metadata" poster="media/devtab-demo.jpg" aria-label="DevTab product demo with captions, widescreen version">
+        <source src="media/devtab-demo.mp4" type="video/mp4">
+        Your browser does not support embedded video. <a href="media/devtab-demo.mp4">Watch the DevTab demo.</a>
+      </video>
+      <video class="demo-video demo-video-mobile" controls playsinline preload="metadata" poster="media/devtab-demo-vertical.jpg" aria-label="DevTab product demo with captions, vertical version">
+        <source src="media/devtab-demo-vertical.mp4" type="video/mp4">
+        Your browser does not support embedded video. <a href="media/devtab-demo-vertical.mp4">Watch the vertical DevTab demo.</a>
+      </video>
+      <div class="demo-formats" aria-label="Other video formats">
+        <a href="media/devtab-demo-vertical.mp4" download>Download vertical 9:16 version</a>
+        <a href="media/devtab-demo.jpg" download>Download video poster</a>
+      </div>
     </div>
   </section>
 
