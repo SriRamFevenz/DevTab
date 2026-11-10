@@ -25,7 +25,7 @@ It is written in vanilla JavaScript (ES modules) for Manifest V3, with no build 
 ## Product demo
 
 - [Watch the demo on the project website](https://makitdev.github.io/DevTab/#demo)
-- [16:9 demo video](https://makitdev.github.io/DevTab/media/devtab-demo.mp4)
+- [16:9 demo video](https://github.com/makitdev/DevTab/blob/gh-pages/media/devtab-demo.mp4)
 - [9:16 vertical demo video](https://makitdev.github.io/DevTab/media/devtab-demo-vertical.mp4)
 
 ### Highlights
