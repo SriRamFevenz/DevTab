@@ -28,6 +28,11 @@ It is written in vanilla JavaScript (ES modules) for Manifest V3, with no build 
 - [16:9 demo video](https://github.com/makitdev/DevTab/blob/gh-pages/media/devtab-demo.mp4)
 - [9:16 vertical demo video](https://makitdev.github.io/DevTab/media/devtab-demo-vertical.mp4)
 
+<video controls width="100%">
+  <source src="https://raw.githubusercontent.com/makitdev/DevTab/gh-pages/media/devtab-demo.mp4" type="video/mp4">
+  Your browser does not support embedded videos. [Open the 16:9 demo video](https://github.com/makitdev/DevTab/blob/gh-pages/media/devtab-demo.mp4).
+</video>
+
 ### Highlights
 
 - **Prompt-driven navigation:** Fuzzy-find links, complete with <kbd>Tab</kbd>, open with <kbd>Enter</kbd>.
