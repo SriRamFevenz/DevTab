@@ -22,6 +22,12 @@ DevTab replaces Chrome's new tab page with a keyboard-first command prompt. Type
 
 It is written in vanilla JavaScript (ES modules) for Manifest V3, with no build step, no dependencies, and no network requests of its own.
 
+## Product demo
+
+- [Watch the demo on the project website](https://makitdev.github.io/DevTab/#demo)
+- [16:9 demo video](https://makitdev.github.io/DevTab/media/devtab-demo.mp4)
+- [9:16 vertical demo video](https://makitdev.github.io/DevTab/media/devtab-demo-vertical.mp4)
+
 ### Highlights
 
 - **Prompt-driven navigation:** Fuzzy-find links, complete with <kbd>Tab</kbd>, open with <kbd>Enter</kbd>.
