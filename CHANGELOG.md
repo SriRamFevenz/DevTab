@@ -6,6 +6,10 @@ All notable changes to DevTab are documented here. The format is based on
 
 ## [Unreleased]
 
+### Changed
+
+- README product demo now embeds a local animated GIF.
+
 ### Added
 
 - Project website and live demo links (`https://makitdev.github.io/DevTab/`) added to `manifest.json`, `README.md`, dialogs, prompt commands, and issue templates.
